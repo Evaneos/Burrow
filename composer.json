@@ -1,0 +1,26 @@
+{
+    "name": "evaneos/burrow",
+    "description": "AMQP Messaging component",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evaneos",
+            "email": "dev@evaneos.com"
+        }
+    ],
+
+    "require" : {
+        "videlalvaro/php-amqplib": "2.4.*"
+    },
+
+    "require-dev" : {
+        "phpunit/phpunit" : "*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Burrow\\": "src/"
+        }
+    }
+}
