@@ -1,6 +1,6 @@
 {
     "name": "evaneos/burrow",
-    "description": "AMQP Messaging component",
+    "description": "AMQP Messaging Event component",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
@@ -11,7 +11,8 @@
     ],
 
     "require" : {
-        "videlalvaro/php-amqplib": "2.4.*"
+        "videlalvaro/php-amqplib": "2.4.*",
+        "psr/log": "~1.0"
     },
 
     "require-dev" : {

@@ -1,0 +1,26 @@
+MessagingService:
+    class: \Burrow\Burrow
+    arguments: [ %amqp.host, %amqp.port, %amqp.user, %amqp.password ]
+    call:
+        declareQueue: [ @MailgunQueue ]
+        declareQueue: [ @NewsletterSubscriptionQueue ]
+        declareExchange: [ @RegistrationExchange ]
+
+MailgunQueue:
+    class : \Burrow\Queue
+    arguments : [ 'mailgun' ]
+
+NewsletterSubscriptionQueue:
+    class : \Burrow\Queue
+    arguments : [ 'newsletter' ]
+
+RegistrationExchange:
+    class: \Burrow\Exchange
+    arguments: [ 'registration', 'fanout' ]
+    call:
+        bindQueue: [ @MailgunQueue ]
+        bindQueue: [ @NewsletterSubscriptionQueue ]
+
+MailgunEmailConsumer:
+    class: \Burrow\Consumer
+    arguments: [  ]
