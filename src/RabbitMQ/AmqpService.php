@@ -78,9 +78,6 @@ class AmqpService
             $this->exchanges[$exchange] = $exchange;
             $this->getChannel()->exchange_declare($exchange, 'fanout', false, true, false);
         }
-
-        $this->getChannel()->queue_declare($exchange, false, true, false, false);
-        $this->getChannel()->queue_bind($exchange, $exchange);
     }
 
     /**
@@ -104,12 +101,16 @@ class AmqpService
     /**
      * @param string $exchange
      * @param callable $callback
+     * @param string $queue
      *
      * @return void
      */
-    public function registerConsumer($exchange, callable $callback)
+    public function registerConsumer($exchange, callable $callback, $queue = '')
     {
         $this->declareExchangeIfNotExist($exchange);
+
+        list($queue,,) = $this->getChannel()->queue_declare($queue, false, true, false, false);
+        $this->getChannel()->queue_bind($queue, $exchange);
 
         $this->getChannel()->basic_qos(null, 1, null);
         $this->getChannel()->basic_consume($exchange, '', false, false, false, false, function (AMQPMessage $message) use ($callback) {
