@@ -76,7 +76,7 @@ class AmqpService
     {
         if (!isset($this->exchanges[$exchange])) {
             $this->exchanges[$exchange] = $exchange;
-            $this->getChannel()->exchange_declare($exchange, 'direct', false, true, false);
+            $this->getChannel()->exchange_declare($exchange, 'fanout', false, true, false);
         }
 
         $this->getChannel()->queue_declare($exchange, false, true, false, false);
