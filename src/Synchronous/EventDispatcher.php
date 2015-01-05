@@ -13,9 +13,7 @@ class EventDispatcher implements EventDispatcherInterface
     protected $listeners;
 
     /**
-     * @param Event $event
-     *
-     * @return void
+     * @inheritdoc
      */
     public function dispatch(Event $event)
     {
@@ -27,12 +25,7 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Register to an Event.
-     *
-     * @param string   $eventCategory
-     * @param callable $callback
-     *
-     * @return void
+     * @inheritdoc
      */
     public function on($eventCategory, callable $callback)
     {

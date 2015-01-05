@@ -99,9 +99,9 @@ class AmqpService
     }
 
     /**
-     * @param string $exchange
-     * @param callable $callback
-     * @param string $queue
+     * @param string   $exchange Name of the exchnge to bind to
+     * @param callable $callback Callable function
+     * @param string   $queue    Optional queue name to bind to. If none, rabbitmq will generate one.
      *
      * @return void
      */
@@ -113,7 +113,7 @@ class AmqpService
         $this->getChannel()->queue_bind($queue, $exchange);
 
         $this->getChannel()->basic_qos(null, 1, null);
-        $this->getChannel()->basic_consume($exchange, '', false, false, false, false, function (AMQPMessage $message) use ($callback) {
+        $this->getChannel()->basic_consume($queue, '', false, false, false, false, function (AMQPMessage $message) use ($callback) {
             try {
                 call_user_func($callback, unserialize($message->body));
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);

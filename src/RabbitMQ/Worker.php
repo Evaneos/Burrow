@@ -28,21 +28,28 @@ class Worker implements LoggerAwareInterface
     private $amqpService;
 
     /**
-     * @param AmqpService $amqpService
+     * @var string
      */
-    public function __construct(AmqpService $amqpService)
+    private $exchange;
+
+    /**
+     * @param AmqpService $amqpService
+     * @param string      $exchange
+     * @param string      $queue
+     */
+    public function __construct(AmqpService $amqpService, $exchange, $queue)
     {
         $this->amqpService = $amqpService;
-        $this->dispatcher = new EventDispatcher($this->amqpService);
+        $this->exchange = $exchange;
+        $this->dispatcher = new EventDispatcher($this->amqpService, $queue);
     }
 
     /**
-     * @param $queue
-     * @param $callback
+     * @param callable $callback
      */
-    public function registerListener($queue, $callback)
+    public function registerListener(callable $callback)
     {
-        $this->dispatcher->on($queue, $callback);
+        $this->dispatcher->on($this->exchange, $callback);
     }
 
     /**

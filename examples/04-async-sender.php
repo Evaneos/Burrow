@@ -3,7 +3,7 @@
 
 if (!isset($argv[1])) {
     $io = fopen('php://stderr', 'w+');
-    fwrite($io, "usage : php 03-async-sender.php nbevents\n");
+    fwrite($io, "usage : php 04-async-sender.php nbevents\n");
     die;
 }
 

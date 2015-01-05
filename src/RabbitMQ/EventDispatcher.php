@@ -18,17 +18,22 @@ class EventDispatcher implements EventDispatcherInterface
     protected $listeners;
 
     /**
-     * @param AmqpService $amqpService
+     * @var string
      */
-    public function __construct(AmqpService $amqpService)
+    protected $queueName;
+
+    /**
+     * @param AmqpService $amqpService
+     * @param string      $queueName
+     */
+    public function __construct(AmqpService $amqpService, $queueName = '')
     {
         $this->amqpService = $amqpService;
+        $this->queueName = $queueName;
     }
 
     /**
-     * @param Event $event
-     *
-     * @return void
+     * @inheritdoc
      */
     public function dispatch(Event $event)
     {
@@ -36,12 +41,7 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Register to an Event.
-     *
-     * @param string   $eventCategory
-     * @param callable $callback
-     *
-     * @return void
+     * @inheritdoc
      */
     public function on($eventCategory, callable $callback)
     {
@@ -55,6 +55,6 @@ class EventDispatcher implements EventDispatcherInterface
             foreach ($me->listeners[$eventCategory] as $callback) {
                 call_user_func($callback, $event);
             }
-        });
+        }, $this->queueName);
     }
 }
