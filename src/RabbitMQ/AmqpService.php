@@ -82,7 +82,7 @@ class AmqpService
 
     /**
      * @param string $exchange
-     * @param mixed  $data
+     * @param string $data
      *
      * @return bool
      */
