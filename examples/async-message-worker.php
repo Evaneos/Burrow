@@ -10,5 +10,5 @@ if (!isset($argv[1])) {
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $amqpService = new \Burrow\RabbitMQ\AmqpSimpleService('127.0.0.1', 5672, 'guest', 'guest', $argv[1]);
-$worker = new \Burrow\SimpleWorker($amqpService);
+$worker = new \Burrow\EchoWorker($amqpService);
 $worker->daemonize();

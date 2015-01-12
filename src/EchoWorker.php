@@ -4,7 +4,7 @@ namespace Burrow;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class SimpleWorker extends AbstractWorker
+class EchoWorker extends AbstractWorker implements Worker
 {
 
     /**
