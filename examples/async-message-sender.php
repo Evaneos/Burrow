@@ -9,11 +9,11 @@ if (!isset($argv[1]) || !isset($argv[2])) {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$amqpService = new \Burrow\RabbitMQ\AmqpExchangeService('127.0.0.1', 5672, 'guest', 'guest', 'xchange');
+$queueService = new \Burrow\RabbitMQ\AmqpExchangeService('127.0.0.1', 5672, 'guest', 'guest', 'xchange');
 
 for ($i=2; $i<10; $i++) {
     if (isset($argv[$i])) {
-        $amqpService->addQueue($argv[$i]);
+        $queueService->addQueue($argv[$i]);
         echo "Added queue: ".$argv[$i]."\n";
     } else {
         break;
@@ -21,5 +21,5 @@ for ($i=2; $i<10; $i++) {
 }
 
 for ($i = 0; $i < $argv[1]; ++$i) {
-    $amqpService->publish('event #'.$i);
+    $queueService->publish('event #'.$i);
 }
