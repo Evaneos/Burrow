@@ -60,11 +60,11 @@ abstract class AbstractAmqpService implements QueueService
      * (non-PHPdoc)
      * @see \Burrow\QueueService::publish()
      */
-    public function publish($data)
+    public function publish($data, $routingKey = "")
     {
         $msg = new AMQPMessage($data, array('delivery_mode' => 2));
 
-        $this->getChannel()->basic_publish($msg, $this->queueName);
+        $this->getChannel()->basic_publish($msg, $this->queueName, $routingKey);
     }
 
     /**
