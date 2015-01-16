@@ -10,6 +10,6 @@ if (!isset($argv[1])) {
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('127.0.0.1', 5672, 'guest', 'guest', $argv[1]);
-$handler->registerConsumer(new \Burrow\EchoConsumer());
-$worker = new \Burrow\QueueWorker($handler);
+$handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
+$worker = new \Burrow\Worker($handler);
 $worker->run();

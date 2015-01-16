@@ -4,7 +4,7 @@ namespace Burrow;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class QueueWorker implements LoggerAwareInterface
+class Worker implements LoggerAwareInterface
 {
     /**
      * @var string
@@ -17,18 +17,18 @@ class QueueWorker implements LoggerAwareInterface
     protected $logger;
 
     /**
-     * @var QueueHandler
+     * @var Daemonizable
      */
-    protected $queueHandler;
+    protected $daemonizable;
     
     /**
      * Constructor
      * 
-     * @param QueueHandler $queueHandler
+     * @param Daemonizable $daemonizable
      */
-    public function __construct(QueueHandler $queueHandler)
+    public function __construct(Daemonizable $daemonizable)
     {
-        $this->queueHandler = $queueHandler;
+        $this->daemonizable = $daemonizable;
     }
 
     /**
@@ -45,7 +45,7 @@ class QueueWorker implements LoggerAwareInterface
             pcntl_signal(SIGHUP, array($this, 'signalHandler'));
         }
 
-        $this->queueHandler->daemonize();
+        $this->daemonizable->daemonize();
     }
 
     /**
@@ -59,7 +59,7 @@ class QueueWorker implements LoggerAwareInterface
                 if ($this->logger) {
                     $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
                 }
-                $this->queueHandler->shutdown();
+                $this->daemonizable->shutdown();
                 exit(1);
                 break;
             case SIGHUP:

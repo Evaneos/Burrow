@@ -1,7 +1,9 @@
 <?php
 namespace Burrow\RabbitMQ;
 
-class AmqpDaemonizer extends AmqpTemplate
+use Burrow\Daemonizable;
+
+class AmqpDaemonizer extends AmqpTemplate implements Daemonizable
 {
     /**
      * Run as a daemon

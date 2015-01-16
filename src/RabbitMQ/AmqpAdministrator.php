@@ -28,7 +28,7 @@ class AmqpAdministrator extends AmqpTemplate
      * @param string $queueName
      * @param string $type
      */
-    public function declareExchange($queueName, $type = 'fanout')
+    public function declareExchange($queueName, $type = self::FANOUT)
     {
         $this->channel->exchange_declare($queueName, $type, false, true, false);
     }

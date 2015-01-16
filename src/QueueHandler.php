@@ -12,18 +12,4 @@ interface QueueHandler
      * @return void
      */
     public function registerConsumer(QueueConsumer $consumer);
-
-    /**
-     * Run as a daemon
-     * 
-     * @return void
-     */
-    public function daemonize();
-
-    /**
-     * Stop current connection / daemon
-     * 
-     * @return void
-     */
-    public function shutdown();
 }

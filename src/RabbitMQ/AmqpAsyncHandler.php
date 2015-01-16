@@ -6,8 +6,9 @@ use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueueHandler;
 use Burrow\QueueConsumer;
+use Burrow\Daemonizable;
 
-class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler
+class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemonizable
 {
     /**
      * @var string
