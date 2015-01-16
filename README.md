@@ -33,8 +33,8 @@ $publisher->publish('my_event');
 #### Write a daemon to consume events from RabbitMQ
 ```php
 $handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('127.0.0.1', 5672, 'guest', 'guest', 'my_queue');
-$handler->registerConsumer(new \Burrow\EchoConsumer());
-$worker = new \Burrow\QueueWorker($handler);
+$handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
+$worker = new \Burrow\Worker($handler);
 $worker->run();
 ```
 
