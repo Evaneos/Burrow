@@ -1,26 +1,17 @@
 <?php
 namespace Burrow;
 
-interface QueueService
+interface QueueHandler
 {
-    /**
-     * Publish a message on the queue
-     * 
-     * @param string $data
-     * @param string $routingKey
-     *
-     * @return void
-     */
-    public function publish($data, $routingKey = "");
 
     /**
      * Register a consumer for the queue
      * 
-     * @param callable $callback Callable function
+     * @param QueueConsumer $consumer consumer object
      *
      * @return void
      */
-    public function registerConsumer(callable $callback);
+    public function registerConsumer(QueueConsumer $consumer);
 
     /**
      * Run as a daemon

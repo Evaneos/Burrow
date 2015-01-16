@@ -4,7 +4,7 @@ namespace Burrow;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractWorker implements Worker, LoggerAwareInterface
+class QueueWorker implements LoggerAwareInterface
 {
     /**
      * @var string
@@ -17,50 +17,35 @@ abstract class AbstractWorker implements Worker, LoggerAwareInterface
     protected $logger;
 
     /**
-     * @var QueueSersvice
+     * @var QueueHandler
      */
-    protected $queueService;
+    protected $queueHandler;
     
     /**
      * Constructor
      * 
-     * @param QueueService $queueService
+     * @param QueueHandler $queueHandler
      */
-    public function __construct(QueueService $queueService)
+    public function __construct(QueueHandler $queueHandler)
     {
-        $this->setQueueService($queueService);
+        $this->queueHandler = $queueHandler;
     }
-    
-    /**
-     * (non-PHPdoc)
-     * @see \Burrow\Worker::setQueueService()
-     */
-    public function setQueueService(QueueService $queueService)
-    {
-        $this->queueService = $queueService;
-        
-        $this->init();
-    }
-
-    /**
-     * Init the consumption
-     */
-    abstract protected function init();
 
     /**
      * Run as a daemon
      */
-    public function daemonize()
+    public function run()
     {
         $this->sessionId = uniqid();
 
         if (function_exists('pcntl_signal')) {
+            declare(ticks = 1);
             pcntl_signal(SIGTERM, array($this, 'signalHandler'));
             pcntl_signal(SIGINT, array($this, 'signalHandler'));
             pcntl_signal(SIGHUP, array($this, 'signalHandler'));
         }
 
-        $this->queueService->daemonize();
+        $this->queueHandler->daemonize();
     }
 
     /**
@@ -74,7 +59,7 @@ abstract class AbstractWorker implements Worker, LoggerAwareInterface
                 if ($this->logger) {
                     $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
                 }
-                $this->queueService->shutdown();
+                $this->queueHandler->shutdown();
                 exit(1);
                 break;
             case SIGHUP:
