@@ -9,17 +9,17 @@ class Worker implements LoggerAwareInterface
     /**
      * @var string
      */
-    protected $sessionId;
+    private $sessionId;
 
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
     /**
      * @var Daemonizable
      */
-    protected $daemonizable;
+    private $daemonizable;
     
     /**
      * Constructor
