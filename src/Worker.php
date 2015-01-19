@@ -1,6 +1,5 @@
 <?php
-
-namespace Burrow\RabbitMQ;
+namespace Burrow;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -18,54 +17,35 @@ class Worker implements LoggerAwareInterface
     private $logger;
 
     /**
-     * @var EventDispatcher
+     * @var Daemonizable
      */
-    private $dispatcher;
-
+    private $daemonizable;
+    
     /**
-     * @var AmqpService
+     * Constructor
+     * 
+     * @param Daemonizable $daemonizable
      */
-    private $amqpService;
-
-    /**
-     * @var string
-     */
-    private $exchange;
-
-    /**
-     * @param AmqpService $amqpService
-     * @param string      $exchange
-     * @param string      $queue
-     */
-    public function __construct(AmqpService $amqpService, $exchange, $queue)
+    public function __construct(Daemonizable $daemonizable)
     {
-        $this->amqpService = $amqpService;
-        $this->exchange = $exchange;
-        $this->dispatcher = new EventDispatcher($this->amqpService, $queue);
-    }
-
-    /**
-     * @param callable $callback
-     */
-    public function registerListener(callable $callback)
-    {
-        $this->dispatcher->on($this->exchange, $callback);
+        $this->daemonizable = $daemonizable;
     }
 
     /**
      * Run as a daemon
      */
-    public function daemonize()
+    public function run()
     {
         $this->sessionId = uniqid();
 
         if (function_exists('pcntl_signal')) {
+            declare(ticks = 1);
             pcntl_signal(SIGTERM, array($this, 'signalHandler'));
             pcntl_signal(SIGINT, array($this, 'signalHandler'));
             pcntl_signal(SIGHUP, array($this, 'signalHandler'));
         }
 
-        $this->amqpService->daemonize();
+        $this->daemonizable->daemonize();
     }
 
     /**
@@ -79,7 +59,7 @@ class Worker implements LoggerAwareInterface
                 if ($this->logger) {
                     $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
                 }
-                $this->amqpService->shutdown();
+                $this->daemonizable->shutdown();
                 exit(1);
                 break;
             case SIGHUP:
