@@ -36,6 +36,6 @@ class AmqpAsyncPublisher extends AmqpTemplate implements QueuePublisher
     {
         $msg = new AMQPMessage($data, array('delivery_mode' => 2));
 
-        $this->channel->basic_publish($msg, $this->queueName, $routingKey);
+        $this->channel->basic_publish(serialize($msg), $this->queueName, $routingKey);
     }
 }

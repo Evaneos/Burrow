@@ -39,7 +39,7 @@ class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemoniza
         $this->channel->basic_qos(null, 1, null);
         $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($consumer) {
             try {
-                $consumer->consume($message->body);
+                $consumer->consume(unserialize($message->body));
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
             } catch (\Exception $e) {
                 // beware of unlimited loop !
