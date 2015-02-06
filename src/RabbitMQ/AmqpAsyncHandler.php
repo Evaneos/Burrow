@@ -7,13 +7,20 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueueHandler;
 use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 
-class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemonizable
+class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
     /**
      * @var string
      */
     protected $queueName;
+    
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * Constructor
@@ -36,15 +43,35 @@ class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemoniza
      */
     public function registerConsumer(QueueConsumer $consumer)
     {
+        $memory = 0;
+        $self = $this;
+        
         $this->channel->basic_qos(null, 1, null);
-        $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($consumer) {
+        $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self, $consumer, $memory) {
             try {
                 $consumer->consume(unserialize($message->body));
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+                
+                $currentMemory = memory_get_usage(true);
+                if ($self->logger && $memory > 0 && $currentMemory > $memory) {
+                    $self->logger->warning('Memory usage increased by ' . $currentMemory-$memory . 'o (' . $currentMemory . 'o)');
+                }
+                $memory = $currentMemory;
             } catch (\Exception $e) {
                 // beware of unlimited loop !
                 $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], true);
+                if ($self->logger) {
+                    $self->logger->error($e->getMessage());
+                }
             }
         });
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see \Psr\Log\LoggerAwareInterface::setLogger()
+     */
+    public function setLogger(LoggerInterface $logger) {
+        $this->logger = $logger;
     }
 }
