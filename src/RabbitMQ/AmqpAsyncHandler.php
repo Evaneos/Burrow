@@ -10,12 +10,22 @@ use Burrow\Daemonizable;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemonizable, LoggerAwareInterface
+class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
     /**
      * @var string
      */
     protected $queueName;
+    
+    /**
+     * @var QueueConsumer
+     */
+    protected $consumer;
+    
+    /**
+     * @var int
+     */
+    protected $memory = 0;
     
     /**
      * @var LoggerInterface
@@ -43,20 +53,27 @@ class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemoniza
      */
     public function registerConsumer(QueueConsumer $consumer)
     {
-        $memory = 0;
+        $this->consumer = $consumer;
+    }
+    
+    /**
+     * Inits the consumer
+     */
+    public function initConsumer()
+    {
         $self = $this;
         
         $this->channel->basic_qos(null, 1, null);
-        $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self, $consumer, $memory) {
+        $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
             try {
-                $consumer->consume(unserialize($message->body));
+                $self->consumer->consume(unserialize($message->body));
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
                 
                 $currentMemory = memory_get_usage(true);
-                if ($self->logger && $memory > 0 && $currentMemory > $memory) {
-                    $self->logger->warning('Memory usage increased by ' . $currentMemory-$memory . 'o (' . $currentMemory . 'o)');
+                if ($self->logger && $self->memory > 0 && $currentMemory > $self->memory) {
+                    $self->logger->warning('Memory usage increased by ' . ($currentMemory - $self->memory) . 'o (' . $currentMemory . 'o)');
                 }
-                $memory = $currentMemory;
+                $self->memory = $currentMemory;
             } catch (\Exception $e) {
                 // beware of unlimited loop !
                 $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], true);
@@ -65,6 +82,41 @@ class AmqpAsyncHandler extends AmqpDaemonizer implements QueueHandler, Daemoniza
                 }
             }
         });
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see \Burrow\Daemonizable::daemonize()
+     */
+    public function daemonize()
+    {
+        if ($this->logger) {
+            $this->info->warning('Registering consumer...');
+        }
+        
+        $this->initConsumer();
+        
+        if ($this->logger) {
+            $this->info->warning('Starting AMqpAsyncHandler daemon...');
+        }
+        
+        while (count($this->channel->callbacks)) {
+            $this->channel->wait();
+        }
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see \Burrow\Daemonizable::shutdown()
+     */
+    public function shutdown()
+    {
+        if ($this->logger) {
+            $this->info->warning('Closing AMqpAsyncHandler daemon...');
+        }
+        
+        $this->channel->close();
+        $this->connection->close();
     }
     
     /**
