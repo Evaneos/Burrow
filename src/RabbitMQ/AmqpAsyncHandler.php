@@ -91,13 +91,13 @@ class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizabl
     public function daemonize()
     {
         if ($this->logger) {
-            $this->info->warning('Registering consumer...');
+            $this->logger->info('Registering consumer...');
         }
         
         $this->initConsumer();
         
         if ($this->logger) {
-            $this->info->warning('Starting AMqpAsyncHandler daemon...');
+            $this->logger->info('Starting AMqpAsyncHandler daemon...');
         }
         
         while (count($this->channel->callbacks)) {
@@ -112,7 +112,7 @@ class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizabl
     public function shutdown()
     {
         if ($this->logger) {
-            $this->info->warning('Closing AMqpAsyncHandler daemon...');
+            $this->logger->info('Closing AMqpAsyncHandler daemon...');
         }
         
         $this->channel->close();
