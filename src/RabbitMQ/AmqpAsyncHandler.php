@@ -57,6 +57,42 @@ class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizabl
     }
     
     /**
+     * Returns the consumer
+     * 
+     * @return QueueConsumer
+     */
+    public function getConsumer() {
+        return $this->consumer;
+    }
+    
+    /**
+     * Returns the logger
+     * 
+     * @return LoggerInterface
+     */
+    public function getLogger() {
+        return $this->logger;
+    }
+    
+    /**
+     * Returns the current memory usage
+     * 
+     * @return int
+     */
+    public function getMemory() {
+        return $this->memory;
+    }
+    
+    /**
+     * Sets the memory usage
+     * 
+     * @param int $memory
+     */
+    public function setMemory($memory) {
+        $this->memory = $memory;
+    }
+    
+    /**
      * Inits the consumer
      */
     public function initConsumer()
@@ -66,19 +102,19 @@ class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizabl
         $this->channel->basic_qos(null, 1, null);
         $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
             try {
-                $self->consumer->consume(unserialize($message->body));
+                $self->getConsumer()->consume(unserialize($message->body));
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
                 
                 $currentMemory = memory_get_usage(true);
-                if ($self->logger && $self->memory > 0 && $currentMemory > $self->memory) {
-                    $self->logger->warning('Memory usage increased by ' . ($currentMemory - $self->memory) . 'o (' . $currentMemory . 'o)');
+                if ($self->getLogger() && $self->getMemory() > 0 && $currentMemory > $self->getMemory()) {
+                    $self->getLogger()->warning('Memory usage increased by ' . ($currentMemory - $self->getMemory()) . 'o (' . $currentMemory . 'o)');
                 }
-                $self->memory = $currentMemory;
+                $self->setMemory($currentMemory);
             } catch (\Exception $e) {
                 // beware of unlimited loop !
                 $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], true);
-                if ($self->logger) {
-                    $self->logger->error($e->getMessage());
+                if ($self->getLogger()) {
+                    $self->getLogger()->error($e->getMessage());
                 }
             }
         });
