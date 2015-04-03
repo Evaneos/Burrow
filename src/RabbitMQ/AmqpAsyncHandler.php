@@ -136,7 +136,7 @@ class AmqpAsyncHandler extends AmqpTemplate implements QueueHandler, Daemonizabl
             $this->logger->info('Starting AMqpAsyncHandler daemon...');
         }
         
-        while (count($this->channel->callbacks)) {
+        while (true) {
             $this->channel->wait();
         }
     }
