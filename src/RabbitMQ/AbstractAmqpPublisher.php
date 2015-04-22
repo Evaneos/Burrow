@@ -33,14 +33,15 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
      *
      * @param string $data
      * @param string $routingKey
-     *
      * @return mixed|null|void
      */
     public function publish($data, $routingKey = '')
     {
-        $msg = new AMQPMessage(serialize($data), $this->getMessageProperties());
-
-        $this->channel->basic_publish($msg, $this->exchangeName, $routingKey);
+        $this->channel->basic_publish(
+            new AMQPMessage(serialize($data), $this->getMessageProperties()),
+            $this->exchangeName,
+            $routingKey
+        );
     }
 
     /**

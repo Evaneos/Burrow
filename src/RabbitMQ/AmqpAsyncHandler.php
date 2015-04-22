@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 class AmqpAsyncHandler extends AbstractAmqpHandler implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
     /**
-     * @param AMQPMessage $message
+     * @param  AMQPMessage $message
      * @return void
      */
     protected function consume(AMQPMessage $message)

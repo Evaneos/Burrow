@@ -33,6 +33,8 @@ class Worker implements LoggerAwareInterface
 
     /**
      * Run as a daemon
+     *
+     * @return void
      */
     public function run()
     {
@@ -49,7 +51,8 @@ class Worker implements LoggerAwareInterface
     }
 
     /**
-     * @param int $signal
+     * @param  int $signal
+     * @return void
      */
     public function signalHandler($signal)
     {
@@ -73,8 +76,8 @@ class Worker implements LoggerAwareInterface
     /**
      * Sets a logger instance on the object
      *
-     * @param LoggerInterface $logger
-     * @return null
+     * @param  LoggerInterface $logger
+     * @return void
      */
     public function setLogger(LoggerInterface $logger)
     {

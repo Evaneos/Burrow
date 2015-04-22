@@ -48,7 +48,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     /**
      * Sets the consumer
      *
-     * @param QueueConsumer $consumer
+     * @param  QueueConsumer $consumer
+     * @return void
      */
     public function registerConsumer(QueueConsumer $consumer)
     {
@@ -85,7 +86,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     /**
      * Sets the memory usage
      * 
-     * @param int $memory
+     * @param  int $memory
+     * @return void
      */
     public function setMemory($memory) {
         $this->memory = $memory;
@@ -93,6 +95,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     
     /**
      * Inits the consumer
+     *
+     * @return void
      */
     public function initConsumer()
     {
@@ -120,6 +124,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     }
 
     /**
+     * Consume the message
+     *
      * @param AMQPMessage $message
      * @return void
      */
@@ -127,6 +133,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
 
     /**
      * Starts the daemon
+     *
+     * @return void
      */
     public function daemonize()
     {
@@ -147,6 +155,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
 
     /**
      * Shuts the daemon
+     *
+     * @return void
      */
     public function shutdown()
     {
