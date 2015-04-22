@@ -40,8 +40,8 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         list($this->callbackQueue, ,) = $this->channel->queue_declare('', false, false, true, false);
         $this->channel->basic_consume(
             $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
-                if($message->get('correlation_id') == $this->correlationId) {
-                    $this->response = unserialize($message->body);
+                if($message->get('correlation_id') == $self->correlationId) {
+                    $self->response = unserialize($message->body);
                 }
             }
         );
