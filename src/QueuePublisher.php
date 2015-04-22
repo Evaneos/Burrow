@@ -9,7 +9,7 @@ interface QueuePublisher
      * @param string $data
      * @param string $routingKey
      *
-     * @return void
+     * @return mixed|null|void
      */
     public function publish($data, $routingKey = "");
 }
