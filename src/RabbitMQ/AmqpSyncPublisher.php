@@ -3,6 +3,7 @@ namespace Burrow\RabbitMQ;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPConnection;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueuePublisher;
 
@@ -24,6 +25,11 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
     private $response;
 
     /**
+     * @var int
+     */
+    private $timeout;
+
+    /**
      * Constructor
      *
      * @param string $host
@@ -31,10 +37,12 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
      * @param string $user
      * @param string $pass
      * @param string $exchangeName
+     * @param int    $timeout      timeout of the wait loop in seconds (default to 1)
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName)
+    public function __construct($host, $port, $user, $pass, $exchangeName, $timeout = 1)
     {
         parent::__construct($host, $port, $user, $pass, $exchangeName);
+        $this->timeout = $timeout;
 
         $self = $this;
         list($this->callbackQueue, ,) = $this->channel->queue_declare('', false, false, true, false);
@@ -50,9 +58,8 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
     /**
      * Publish a message on the queue
      *
-     * @param string $data
-     * @param string $routingKey
-     *
+     * @param  string $data
+     * @param  string $routingKey
      * @return mixed|null|void
      */
     public function publish($data, $routingKey = '')
@@ -62,10 +69,31 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
 
         parent::publish($data, $routingKey);
 
-        while(!$this->response) {
-            $this->channel->wait();
-        }
+        $this->waitForResponse();
+
         return $this->response;
+    }
+
+    /**
+     * wait for response
+     *
+     * @return void
+     */
+    private function waitForResponse()
+    {
+        $start = microtime(true);
+        $msTimeout = $this->timeout * 1000;
+        $elapsedTime = 0;
+
+        while(!$this->response && $elapsedTime < $msTimeout) {
+            $this->channel->wait(null, false, $this->timeout);
+            $elapsedTime = microtime(true) - $start;
+        }
+
+        if ($elapsedTime > $msTimeout)
+        {
+            throw new AMQPTimeoutException('Timeout expired');
+        }
     }
 
     /**
