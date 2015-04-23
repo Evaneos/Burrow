@@ -86,7 +86,8 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $elapsedTime = 0;
 
         while(!$this->response && $elapsedTime < $msTimeout) {
-            $this->channel->wait(null, false, $this->timeout);
+            $waitTimeout = ceil(($msTimeout - $elapsedTime) / 1000);
+            $this->channel->wait(null, false, $waitTimeout);
             $elapsedTime = microtime(true) - $start;
         }
 
