@@ -6,7 +6,7 @@ Evaneos message queue library (with a RabbitMQ Implementation)
 Installation
 ------------
 ```bash
-composer require evaneos/Burrow dev-master
+composer require evaneos/Burrow
 ```
 Usage
 -----
