@@ -21,10 +21,11 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
      * @param string $user
      * @param string $pass
      * @param string $exchangeName
+     * @param string $escapeMode
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName)
+    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
     {
-        parent::__construct($host, $port, $user, $pass);
+        parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->exchangeName = $exchangeName;
     }
 
@@ -38,7 +39,7 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
     public function publish($data, $routingKey = '')
     {
         $this->channel->basic_publish(
-            new AMQPMessage(serialize($data), $this->getMessageProperties()),
+            new AMQPMessage($this->escape($data), $this->getMessageProperties()),
             $this->exchangeName,
             $routingKey
         );
