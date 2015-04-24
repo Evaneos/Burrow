@@ -24,13 +24,16 @@ $admin->declareExchange('exchange');
 $admin->declareAndBindQueue('exchange', 'my_queue');
 ```
 
-#### Dispatching an event with RabbitMQ
+Asynchronous management
+-----------------------
+
+#### Dispatching an async message with RabbitMQ
 ```php
 $publisher = new \Burrow\RabbitMQ\AmqpAsyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'exchange');
-$publisher->publish('my_event');
+$publisher->publish('my_message');
 ```
 
-#### Write a daemon to consume events from RabbitMQ
+#### Write a daemon to consume async messages from RabbitMQ
 ```php
 $handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('127.0.0.1', 5672, 'guest', 'guest', 'my_queue');
 $handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
@@ -39,3 +42,22 @@ $worker->run();
 ```
 
 In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the worker terminal.
+
+Synchronous management
+-----------------------
+
+#### Dispatching an async message with RabbitMQ
+```php
+$publisher = new \Burrow\RabbitMQ\AmqpSyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'exchange');
+$publisher->publish('my_message');
+```
+
+#### Write a daemon to consume async messages from RabbitMQ
+```php
+$handler = new \Burrow\RabbitMQ\AmqpSyncHandler('127.0.0.1', 5672, 'guest', 'guest', 'my_queue');
+$handler->registerConsumer(new \Burrow\Examples\ReturnConsumer());
+$worker = new \Burrow\Worker($handler);
+$worker->run();
+```
+
+In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the publisher terminal.

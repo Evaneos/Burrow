@@ -6,7 +6,8 @@ interface QueueConsumer
     /**
      * Consumes a message
      * 
-     * @param mixed $message
+     * @param  string $message
+     * @return string|null|void
      */
     public function consume($message);
 }

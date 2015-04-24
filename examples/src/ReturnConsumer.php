@@ -5,7 +5,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Burrow\QueueConsumer;
 
-class EchoConsumer implements QueueConsumer
+class ReturnConsumer implements QueueConsumer
 {
     /**
      * @param mixed $message
@@ -13,6 +13,6 @@ class EchoConsumer implements QueueConsumer
      */
     public function consume($message)
     {
-        echo $message . "\n";
+        return $message;
     }
 }

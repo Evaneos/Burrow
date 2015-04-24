@@ -15,7 +15,8 @@ class AmqpAdministrator extends AmqpTemplate
     /**
      * Declare a persistent queue
      * 
-     * @param string $queueName
+     * @param  string $queueName
+     * @return void
      */
     public function declareSimpleQueue($queueName)
     {
@@ -25,8 +26,9 @@ class AmqpAdministrator extends AmqpTemplate
     /**
      * Declare an exchange
      * 
-     * @param string $queueName
-     * @param string $type
+     * @param  string $queueName
+     * @param  string $type
+     * @return void
      */
     public function declareExchange($queueName, $type = self::FANOUT)
     {
@@ -36,9 +38,10 @@ class AmqpAdministrator extends AmqpTemplate
     /**
      * Bind an existing queue to an exchange
      * 
-     * @param string $exchange
-     * @param string $queueName
-     * @param string $routingKey
+     * @param  string $exchange
+     * @param  string $queueName
+     * @param  string $routingKey
+     * @return void
      */
     public function bindQueue($exchange, $queueName, $routingKey = '')
     {
@@ -48,9 +51,10 @@ class AmqpAdministrator extends AmqpTemplate
     /**
      * Create a persisting queue and bind it to an exchange
      * 
-     * @param string $exchange
-     * @param string $queueName
-     * @param string $routingKey
+     * @param  string $exchange
+     * @param  string $queueName
+     * @param  string $routingKey
+     * @return void
      */
     public function declareAndBindQueue($exchange, $queueName, $routingKey = '')
     {
