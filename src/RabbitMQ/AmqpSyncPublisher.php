@@ -45,10 +45,10 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $this->timeout = $timeout;
 
         $self = $this;
-        list($this->callbackQueue, ,) = $this->channel->queue_declare('', false, false, true, false);
+        list($this->callbackQueue, , ) = $this->channel->queue_declare('', false, false, true, false);
         $this->channel->basic_consume(
             $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
-                if($message->get('correlation_id') == $self->correlationId) {
+                if ($message->get('correlation_id') == $self->correlationId) {
                     $self->response = unserialize($message->body);
                 }
             }
@@ -85,14 +85,13 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $msTimeout = $this->timeout * 1000;
         $elapsedTime = 0;
 
-        while(!$this->response && $elapsedTime < $msTimeout) {
+        while (!$this->response && $elapsedTime < $msTimeout) {
             $waitTimeout = ceil(($msTimeout - $elapsedTime) / 1000);
             $this->channel->wait(null, false, $waitTimeout);
             $elapsedTime = microtime(true) - $start;
         }
 
-        if ($elapsedTime > $msTimeout)
-        {
+        if ($elapsedTime > $msTimeout) {
             throw new AMQPTimeoutException('Timeout expired');
         }
     }
