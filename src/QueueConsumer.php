@@ -5,7 +5,7 @@ interface QueueConsumer
 {
     /**
      * Consumes a message
-     * 
+     *
      * @param  string $message
      * @return string|null|void
      */

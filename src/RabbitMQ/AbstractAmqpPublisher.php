@@ -15,7 +15,7 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
 
     /**
      * Constructor
-     * 
+     *
      * @param string $host
      * @param string $port
      * @param string $user

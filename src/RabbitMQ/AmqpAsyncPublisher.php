@@ -6,4 +6,6 @@ use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueuePublisher;
 
-class AmqpAsyncPublisher extends AbstractAmqpPublisher implements QueuePublisher {}
+class AmqpAsyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
+{
+}
