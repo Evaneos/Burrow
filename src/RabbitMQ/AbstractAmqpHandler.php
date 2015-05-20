@@ -133,7 +133,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param AMQPMessage $message
      * @return void
      */
-    abstract protected function consume(AMQPMessage $message);
+    abstract public function consume(AMQPMessage $message);
 
     /**
      * Starts the daemon
