@@ -48,8 +48,8 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         list($this->callbackQueue, , ) = $this->channel->queue_declare('', false, false, true, false);
         $this->channel->basic_consume(
             $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
-                if ($message->get('correlation_id') == $self->correlationId) {
-                    $self->response = unserialize($message->body);
+                if ($message->get('correlation_id') == $self->getCorrelationId()) {
+                    $self->setResponse(unserialize($message->body));
                 }
             }
         );
@@ -107,5 +107,21 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $properties['correlation_id'] = $this->correlationId;
         $properties['reply_to'] = $this->callbackQueue;
         return $properties;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCorrelationId()
+    {
+        return $this->correlationId;
+    }
+
+    /**
+     * @param string $response
+     */
+    public function setResponse($response)
+    {
+        $this->response = $response;
     }
 }
