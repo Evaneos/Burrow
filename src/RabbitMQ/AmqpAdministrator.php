@@ -14,7 +14,7 @@ class AmqpAdministrator extends AmqpTemplate
     
     /**
      * Declare a persistent queue
-     * 
+     *
      * @param  string $queueName
      * @return void
      */
@@ -25,7 +25,7 @@ class AmqpAdministrator extends AmqpTemplate
     
     /**
      * Declare an exchange
-     * 
+     *
      * @param  string $queueName
      * @param  string $type
      * @return void
@@ -37,7 +37,7 @@ class AmqpAdministrator extends AmqpTemplate
     
     /**
      * Bind an existing queue to an exchange
-     * 
+     *
      * @param  string $exchange
      * @param  string $queueName
      * @param  string $routingKey
@@ -50,7 +50,7 @@ class AmqpAdministrator extends AmqpTemplate
     
     /**
      * Create a persisting queue and bind it to an exchange
-     * 
+     *
      * @param  string $exchange
      * @param  string $queueName
      * @param  string $routingKey

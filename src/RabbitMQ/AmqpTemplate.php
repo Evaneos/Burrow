@@ -28,7 +28,7 @@ abstract class AmqpTemplate
 
     /**
      * Constructor
-     * 
+     *
      * @param string $host
      * @param int    $port
      * @param string $user

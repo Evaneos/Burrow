@@ -16,7 +16,7 @@ class AmqpAsyncHandler extends AbstractAmqpHandler implements QueueHandler, Daem
      * @param  AMQPMessage $message
      * @return void
      */
-    protected function consume(AMQPMessage $message)
+    public function consume(AMQPMessage $message)
     {
         $this->getConsumer()->consume($this->unescape($message->body));
     }

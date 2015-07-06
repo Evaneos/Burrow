@@ -23,7 +23,7 @@ class Worker implements LoggerAwareInterface
     
     /**
      * Constructor
-     * 
+     *
      * @param Daemonizable $daemonizable
      */
     public function __construct(Daemonizable $daemonizable)
@@ -41,7 +41,7 @@ class Worker implements LoggerAwareInterface
         $this->sessionId = uniqid();
 
         if (function_exists('pcntl_signal')) {
-            declare(ticks = 1);
+            declare (ticks = 1);
             pcntl_signal(SIGTERM, array($this, 'signalHandler'));
             pcntl_signal(SIGINT, array($this, 'signalHandler'));
             pcntl_signal(SIGHUP, array($this, 'signalHandler'));

@@ -32,7 +32,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
 
     /**
      * Constructor
-     * 
+     *
      * @param string $host
      * @param string $port
      * @param string $user
@@ -59,38 +59,42 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     
     /**
      * Returns the consumer
-     * 
+     *
      * @return QueueConsumer
      */
-    public function getConsumer() {
+    public function getConsumer()
+    {
         return $this->consumer;
     }
     
     /**
      * Returns the logger
-     * 
+     *
      * @return LoggerInterface
      */
-    public function getLogger() {
+    public function getLogger()
+    {
         return $this->logger;
     }
     
     /**
      * Returns the current memory usage
-     * 
+     *
      * @return int
      */
-    public function getMemory() {
+    public function getMemory()
+    {
         return $this->memory;
     }
     
     /**
      * Sets the memory usage
-     * 
+     *
      * @param  int $memory
      * @return void
      */
-    public function setMemory($memory) {
+    public function setMemory($memory)
+    {
         $this->memory = $memory;
     }
     
@@ -130,7 +134,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param AMQPMessage $message
      * @return void
      */
-    abstract protected function consume(AMQPMessage $message);
+    abstract public function consume(AMQPMessage $message);
 
     /**
      * Starts the daemon
@@ -175,7 +179,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param LoggerInterface $logger
      * @return void
      */
-    public function setLogger(LoggerInterface $logger) {
+    public function setLogger(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 }

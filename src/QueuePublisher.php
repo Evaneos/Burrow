@@ -5,7 +5,7 @@ interface QueuePublisher
 {
     /**
      * Publish a message on the queue
-     * 
+     *
      * @param  string $data
      * @param  string $routingKey
      * @return string|null|void
