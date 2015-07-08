@@ -9,7 +9,18 @@ if (!isset($argv[1])) {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$publisher = new \Burrow\RabbitMQ\AmqpAsyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'xchange');
+$host = '127.0.0.1';
+$port = 5672;
+$user = 'guest';
+$pass = 'guest';
+$exchange = 'xchange';
+
+//$publisher = new \Burrow\RabbitMQ\AmqpAsyncPublisher($host, $port, $user, $pass, $exchange);
+
+$connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
+$channel = $connection->channel();
+$messagePublisher = new \Swarrot\Broker\MessagePublisher\PhpAmqpLibMessagePublisher($channel, $exchange);
+$publisher = new \Burrow\Swarrot\SwarrotAsyncPublisher($messagePublisher);
 
 for ($i = 0; $i < $argv[1]; ++$i) {
     $publisher->publish('event #'.$i);
