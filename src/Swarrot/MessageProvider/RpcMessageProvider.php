@@ -9,5 +9,5 @@ interface RpcMessageProvider extends MessageProviderInterface {
     /**
      * @return MessagePublisherInterface
      */
-    public function getQueuePublisher($name);
+    public function getQueuePublisher($name = '');
 } 

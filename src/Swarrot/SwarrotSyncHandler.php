@@ -4,14 +4,15 @@ namespace Burrow\Swarrot;
 use Burrow\QueueHandler;
 use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
+use Burrow\Swarrot\MessageProvider\RpcMessageProvider;
 use Burrow\Swarrot\Processor\QueueConsumerProcessor;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
-use Swarrot\Broker\MessageProvider\MessageProviderInterface;
 use Swarrot\Consumer;
+use Swarrot\Processor\RPC\RpcServerProcessor;
 use Swarrot\Processor\Stack\Builder;
 
-class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInterface
+class SwarrotSyncHandler implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
     /**
      * @var QueueConsumer
@@ -19,7 +20,7 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
     protected $consumer;
 
     /**
-     * @var MessageProviderInterface
+     * @var RpcMessageProvider
      */
     protected $messageProvider;
 
@@ -41,9 +42,9 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
     /**
      * Constructor
      *
-     * @param MessageProviderInterface $messageProvider
+     * @param RpcMessageProvider $messageProvider
      */
-    public function __construct(MessageProviderInterface $messageProvider)
+    public function __construct(RpcMessageProvider $messageProvider)
     {
         $this->messageProvider = $messageProvider;
     }
@@ -73,7 +74,12 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
         $processor = (new Builder())
             ->push('Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor')
             ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider)
-            ->resolve(new QueueConsumerProcessor($this->consumer));
+            ->resolve(
+                new RpcServerProcessor(
+                    new QueueConsumerProcessor($this->consumer),
+                    $this->messageProvider->getQueuePublisher()
+                )
+            );
 
         $daemon = new Consumer($this->messageProvider, $processor);
         $daemon->consume();

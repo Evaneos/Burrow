@@ -30,6 +30,6 @@ class QueueConsumerProcessor implements ProcessorInterface {
      * @return bool|null|string|void
      */
     public function process(Message $message, array $options) {
-        return $this->consumer->consume(unserialize($message->getBody()));
+        return serialize($this->consumer->consume(unserialize($message->getBody())));
     }
 }

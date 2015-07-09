@@ -20,6 +20,7 @@ $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $use
 $channel = $connection->channel();
 $messageProvider = new \Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider($channel, $argv[1]);
 $handler = new \Burrow\Swarrot\SwarrotAsyncHandler($messageProvider);
+
 $handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
 $worker = new \Burrow\Worker($handler);
 $worker->run();
