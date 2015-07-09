@@ -16,9 +16,17 @@ $pass = 'guest';
 
 // $handler = new \Burrow\RabbitMQ\AmqpSyncHandler($host, $port, $user, $pass, $argv[1]);
 
-$connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
-$channel = $connection->channel();
-$messageProvider = new \Burrow\Swarrot\MessageProvider\AmqplibRpcMessageProvider($channel, $argv[1]);
+// $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
+// $channel = $connection->channel();
+// $messageProvider = new \Burrow\Swarrot\MessageProvider\AmqplibRpcMessageProvider($channel, $argv[1]);
+
+$credentials = array('host' => $host, 'port' => $port, 'vhost' => '/', 'login' => $user, 'password' => $pass);
+$connection = new \AMQPConnection($credentials);
+$connection->connect();
+$channel = new \AMQPChannel($connection);
+$queue = new \AMQPQueue($channel); $queue->setName($argv[1]);
+$messageProvider = new \Burrow\Swarrot\MessageProvider\PeclRpcMessageProvider($queue);
+
 $handler = new \Burrow\Swarrot\SwarrotSyncHandler($messageProvider);
 
 $handler->registerConsumer(new \Burrow\Examples\ReturnConsumer());

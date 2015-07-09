@@ -17,9 +17,17 @@ $exchange = 'xchange';
 
 // $publisher = new \Burrow\RabbitMQ\AmqpSyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'xchange');
 
-$connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
-$channel = $connection->channel();
-$messagePublisher = new \Burrow\Swarrot\MessagePublisher\AmqplibRpcMessagePublisher($channel, $exchange);
+// $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
+// $channel = $connection->channel();
+// $messagePublisher = new \Burrow\Swarrot\MessagePublisher\AmqplibRpcMessagePublisher($channel, $exchange);
+
+$credentials = array('host' => $host, 'port' => $port, 'vhost' => '/', 'login' => $user, 'password' => $pass);
+$connection = new \AMQPConnection($credentials);
+$connection->connect();
+$channel = new \AMQPChannel($connection);
+$xchange = new \AMQPExchange($channel); $xchange->setName($exchange);
+$messagePublisher = new \Burrow\Swarrot\MessagePublisher\PeclRpcMessagePublisher($xchange);
+
 $publisher = new \Burrow\Swarrot\SwarrotSyncPublisher($messagePublisher);
 
 for ($i = 0; $i < $argv[1]; ++$i) {
