@@ -11,10 +11,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/base-info.php';
 
 $credentials = array('host' => $host, 'port' => $port, 'vhost' => '/', 'login' => $user, 'password' => $pass);
-$connection = new \AMQPConnection($credentials);
-$connection->connect();
-$channel = new \AMQPChannel($connection);
-$queue = new \AMQPQueue($channel); $queue->setName($argv[1]);
+$connection = new \AMQPConnection($credentials); $connection->connect();
+$queue = new \AMQPQueue(new \AMQPChannel($connection)); $queue->setName($argv[1]);
 $messageProvider = new \Burrow\Swarrot\MessageProvider\PeclRpcMessageProvider($queue);
 
 $handler = new \Burrow\Swarrot\SwarrotSyncHandler($messageProvider);

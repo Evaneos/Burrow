@@ -12,8 +12,7 @@ require_once __DIR__ . '/base-info.php';
 
 $credentials = array('host' => $host, 'port' => $port, 'vhost' => '/', 'login' => $user, 'password' => $pass);
 $connection = new \AMQPConnection($credentials); $connection->connect();
-$channel = new \AMQPChannel($connection);
-$queue = new \AMQPQueue($channel); $queue->setName($argv[1]);
+$queue = new \AMQPQueue(new \AMQPChannel($connection)); $queue->setName($argv[1]);
 $messageProvider = new \Swarrot\Broker\MessageProvider\PeclPackageMessageProvider($queue);
 
 $handler = new \Burrow\Swarrot\SwarrotAsyncHandler($messageProvider);

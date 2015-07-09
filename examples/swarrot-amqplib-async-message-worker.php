@@ -11,8 +11,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/base-info.php';
 
 $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
-$channel = $connection->channel();
-$messageProvider = new \Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider($channel, $argv[1]);
+$messageProvider = new \Swarrot\Broker\MessageProvider\PhpAmqpLibMessageProvider($connection->channel(), $argv[1]);
 
 $handler = new \Burrow\Swarrot\SwarrotAsyncHandler($messageProvider);
 
