@@ -3,22 +3,12 @@
 
 if (!isset($argv[1])) {
     $io = fopen('php://stderr', 'w+');
-    fwrite($io, "usage: php sync-message-worker-v2.php <queue-name:string>\n");
+    fwrite($io, "usage: php swarrot-pecl-sync-message-worker-v2.php <queue-name:string>\n");
     die;
 }
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-$host = '127.0.0.1';
-$port = 5672;
-$user = 'guest';
-$pass = 'guest';
-
-// $handler = new \Burrow\RabbitMQ\AmqpSyncHandler($host, $port, $user, $pass, $argv[1]);
-
-// $connection = new \PhpAmqpLib\Connection\AMQPStreamConnection($host, $port, $user, $pass);
-// $channel = $connection->channel();
-// $messageProvider = new \Burrow\Swarrot\MessageProvider\AmqplibRpcMessageProvider($channel, $argv[1]);
+require_once __DIR__ . '/base-info.php';
 
 $credentials = array('host' => $host, 'port' => $port, 'vhost' => '/', 'login' => $user, 'password' => $pass);
 $connection = new \AMQPConnection($credentials);
