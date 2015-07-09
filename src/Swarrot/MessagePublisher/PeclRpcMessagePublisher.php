@@ -12,12 +12,9 @@ class PeclRpcMessagePublisher extends PeclPackageMessagePublisher implements Rpc
      */
     public function getReturnQueueProvider()
     {
-        $channel = $this->exchange->getChannel();
-        $name = substr(sha1(uniqid(mt_rand(), true)), 0, 10);
-
-        $queue = new \AMQPQueue($channel);
+        $queue = new \AMQPQueue($this->exchange->getChannel());
         $queue->setFlags(\AMQP_EXCLUSIVE);
-        $queue->setName($name);
+        $queue->setName(substr(sha1(uniqid(mt_rand(), true)), 0, 10));
         $queue->declareQueue();
 
         return new PeclPackageMessageProvider($queue);

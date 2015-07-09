@@ -30,6 +30,7 @@ class AmqplibRpcMessagePublisher extends PhpAmqpLibMessagePublisher implements R
     {
         $name = substr(sha1(uniqid(mt_rand(), true)), 0, 10);
         $this->channel->queue_declare($name, false, false, true, false);
+
         return new PhpAmqpLibMessageProvider($this->channel, $name);
     }
 } 
