@@ -26,6 +26,11 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @var int
      */
     protected $memory = 0;
+
+    /**
+     * @var bool
+     */
+    protected $stop = false;
     
     /**
      * @var LoggerInterface
@@ -126,7 +131,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
                 $self->getLogger()->error($e->getMessage());
 
                 if($e instanceof ConsumerException) {
-                    throw $e; // should stop the consumer
+                    $this->shutdown();
                 }
             }
         });
@@ -153,9 +158,12 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
         
         $this->logger->info('Starting AMqpAsyncHandler daemon...');
         
-        while (count($this->channel->callbacks)) {
+        while (count($this->channel->callbacks) && !$this->stop) {
             $this->channel->wait();
         }
+
+        $this->channel->close();
+        $this->connection->close();
     }
 
     /**
@@ -167,8 +175,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     {
         $this->logger->info('Closing AMqpAsyncHandler daemon...');
         
-        $this->channel->close();
-        $this->connection->close();
+        $this->stop = true;
     }
 
     /**

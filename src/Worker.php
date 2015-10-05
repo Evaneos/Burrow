@@ -3,6 +3,7 @@ namespace Burrow;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Worker implements LoggerAwareInterface
 {
@@ -29,6 +30,7 @@ class Worker implements LoggerAwareInterface
     public function __construct(Daemonizable $daemonizable)
     {
         $this->daemonizable = $daemonizable;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -59,16 +61,12 @@ class Worker implements LoggerAwareInterface
         switch ($signal) {
             case SIGINT:
             case SIGTERM:
-                if ($this->logger) {
-                    $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
-                }
+                $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
                 $this->daemonizable->shutdown();
                 exit(1);
                 break;
             case SIGHUP:
-                if ($this->logger) {
-                    $this->logger->info('Starting daemon', array('session' => $this->sessionId));
-                }
+                $this->logger->info('Starting daemon', array('session' => $this->sessionId));
                 break;
         }
     }

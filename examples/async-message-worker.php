@@ -9,7 +9,12 @@ if (!isset($argv[1])) {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+$logger = new \Monolog\Logger('TEST');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output', 0));
+
 $handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('127.0.0.1', 5672, 'guest', 'guest', $argv[1]);
 $handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
+$handler->setLogger($logger);
+
 $worker = new \Burrow\Worker($handler);
 $worker->run();
