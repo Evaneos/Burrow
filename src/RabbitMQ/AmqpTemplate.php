@@ -2,8 +2,8 @@
 namespace Burrow\RabbitMQ;
 
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 abstract class AmqpTemplate
 {
@@ -12,7 +12,7 @@ abstract class AmqpTemplate
     const ESCAPE_MODE_JSON      = 'json';
 
     /**
-     * @var AMQPConnection
+     * @var AMQPStreamConnection
      */
     protected $connection;
 
@@ -37,7 +37,7 @@ abstract class AmqpTemplate
      */
     public function __construct($host, $port, $user, $pass, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
     {
-        $this->connection = new AMQPConnection($host, $port, $user, $pass);
+        $this->connection = new AMQPLazyConnection($host, $port, $user, $pass);
         $this->channel = $this->connection->channel();
         $this->escapeMode = $escapeMode;
     }
