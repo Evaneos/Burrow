@@ -18,10 +18,10 @@ class AmqpSyncHandler extends AbstractAmqpHandler implements QueueHandler, Daemo
      */
     public function consume(AMQPMessage $message)
     {
-        $return = $this->getConsumer()->consume(unserialize($message->body));
+        $return = $this->getConsumer()->consume($this->unescape($message->body));
         $message->delivery_info['channel']->basic_publish(
             new AMQPMessage(
-                serialize($return),
+                $this->escape($return),
                 array(
                     'correlation_id' => $message->get('correlation_id')
                 )

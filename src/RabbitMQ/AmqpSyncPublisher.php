@@ -37,11 +37,12 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
      * @param string $user
      * @param string $pass
      * @param string $exchangeName
+     * @param string $escapeMode
      * @param int    $timeout      timeout of the wait loop in seconds (default to 1)
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName, $timeout = 1)
+    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = self::ESCAPE_MODE_SERIALIZE, $timeout = 1)
     {
-        parent::__construct($host, $port, $user, $pass, $exchangeName);
+        parent::__construct($host, $port, $user, $pass, $exchangeName, $escapeMode);
         $this->timeout = $timeout;
 
         $self = $this;
@@ -49,7 +50,7 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $this->channel->basic_consume(
             $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
                 if ($message->get('correlation_id') == $self->getCorrelationId()) {
-                    $self->setResponse(unserialize($message->body));
+                    $self->setResponse($this->unescape($message->body));
                 }
             }
         );

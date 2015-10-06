@@ -45,10 +45,11 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param string $user
      * @param string $pass
      * @param string $queueName
+     * @param string $escapeMode
      */
-    public function __construct($host, $port, $user, $pass, $queueName)
+    public function __construct($host, $port, $user, $pass, $queueName, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
     {
-        parent::__construct($host, $port, $user, $pass);
+        parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->queueName = $queueName;
         $this->logger = new NullLogger();
     }
