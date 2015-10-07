@@ -123,16 +123,23 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
                 
                 $currentMemory = memory_get_usage(true);
                 if ($self->getLogger() && $self->getMemory() > 0 && $currentMemory > $self->getMemory()) {
-                    $self->getLogger()->warning('Memory usage increased by ' . ($currentMemory - $self->getMemory()) . 'o (' . $currentMemory . 'o)');
+                    $self->getLogger()
+                        ->warning(
+                            'Memory usage increased',
+                            array (
+                                'bytes_increased_by' => $currentMemory - $self->getMemory(),
+                                'bytes_current_memory' => $currentMemory
+                            )
+                        );
                 }
                 $self->setMemory($currentMemory);
             } catch (\Exception $e) {
                 // beware of infinite loop !
                 $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], true);
-                $self->getLogger()->error($e->getMessage());
+                $self->getLogger()->error('Received exception', array('exception' => $e));
 
                 if($e instanceof ConsumerException) {
-                    $this->shutdown();
+                    $self->shutdown();
                 }
             }
         });
