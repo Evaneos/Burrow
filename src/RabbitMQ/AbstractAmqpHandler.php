@@ -1,12 +1,14 @@
 <?php
 namespace Burrow\RabbitMQ;
 
+use Burrow\Exception\ConsumerException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueueHandler;
 use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
@@ -24,6 +26,11 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @var int
      */
     protected $memory = 0;
+
+    /**
+     * @var bool
+     */
+    protected $stop = false;
     
     /**
      * @var LoggerInterface
@@ -44,6 +51,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     {
         parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->queueName = $queueName;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -115,14 +123,23 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
                 
                 $currentMemory = memory_get_usage(true);
                 if ($self->getLogger() && $self->getMemory() > 0 && $currentMemory > $self->getMemory()) {
-                    $self->getLogger()->warning('Memory usage increased by ' . ($currentMemory - $self->getMemory()) . 'o (' . $currentMemory . 'o)');
+                    $self->getLogger()
+                        ->warning(
+                            'Memory usage increased',
+                            array (
+                                'bytes_increased_by' => $currentMemory - $self->getMemory(),
+                                'bytes_current_memory' => $currentMemory
+                            )
+                        );
                 }
                 $self->setMemory($currentMemory);
             } catch (\Exception $e) {
-                // beware of unlimited loop !
+                // beware of infinite loop !
                 $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], true);
-                if ($self->getLogger()) {
-                    $self->getLogger()->error($e->getMessage());
+                $self->getLogger()->error('Received exception', array('exception' => $e));
+
+                if($e instanceof ConsumerException) {
+                    $self->shutdown();
                 }
             }
         });
@@ -143,19 +160,18 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      */
     public function daemonize()
     {
-        if ($this->logger) {
-            $this->logger->info('Registering consumer...');
-        }
+        $this->logger->info('Registering consumer...');
         
         $this->initConsumer();
         
-        if ($this->logger) {
-            $this->logger->info('Starting AMqpAsyncHandler daemon...');
-        }
+        $this->logger->info('Starting AMqpAsyncHandler daemon...');
         
-        while (count($this->channel->callbacks)) {
+        while (count($this->channel->callbacks) && !$this->stop) {
             $this->channel->wait();
         }
+
+        $this->channel->close();
+        $this->connection->close();
     }
 
     /**
@@ -165,12 +181,9 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      */
     public function shutdown()
     {
-        if ($this->logger) {
-            $this->logger->info('Closing AMqpAsyncHandler daemon...');
-        }
+        $this->logger->info('Closing AMqpAsyncHandler daemon...');
         
-        $this->channel->close();
-        $this->connection->close();
+        $this->stop = true;
     }
 
     /**
