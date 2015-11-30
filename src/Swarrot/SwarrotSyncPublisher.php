@@ -4,6 +4,7 @@ namespace Burrow\Swarrot;
 use Burrow\QueuePublisher;
 use Burrow\Swarrot\MessagePublisher\RpcMessagePublisher;
 use Burrow\Swarrot\Processor\ReturnProcessor;
+use Burrow\Escaper;
 use Swarrot\Broker\Message;
 use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 use Swarrot\Consumer;
@@ -31,6 +32,11 @@ class SwarrotSyncPublisher implements QueuePublisher
      * @var int
      */
     private $timeout;
+    
+    /**
+     * @var string
+     */
+    private $escapeMode;
 
     /**
      * Constructor
@@ -38,10 +44,11 @@ class SwarrotSyncPublisher implements QueuePublisher
      * @param RpcMessagePublisher $publisher
      * @param int                 $timeout
      */
-    public function __construct(RpcMessagePublisher $publisher, $timeout = 1)
+    public function __construct(RpcMessagePublisher $publisher, $timeout = 1, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
     {
         $this->publisher = $publisher;
         $this->timeout = $timeout;
+        $this->escapeMode = $escapeMode;
     }
 
     /**
@@ -59,7 +66,7 @@ class SwarrotSyncPublisher implements QueuePublisher
         $this->callbackQueue = $returnProvider->getQueueName();
 
         $this->publisher->publish(
-            new Message(serialize($data), $this->getMessageProperties()),
+            new Message(Escaper::escape($data, $this->escapeMode), $this->getMessageProperties()),
             $routingKey ? $routingKey : null
         );
 

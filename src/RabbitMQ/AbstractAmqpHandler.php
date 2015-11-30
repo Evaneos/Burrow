@@ -6,6 +6,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueueHandler;
 use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
+use Burrow\Escaper;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -47,7 +48,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param string $queueName
      * @param string $escapeMode
      */
-    public function __construct($host, $port, $user, $pass, $queueName, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
+    public function __construct($host, $port, $user, $pass, $queueName, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
     {
         parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->queueName = $queueName;

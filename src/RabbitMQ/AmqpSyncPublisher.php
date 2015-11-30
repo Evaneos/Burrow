@@ -6,6 +6,7 @@ use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueuePublisher;
+use Burrow\Escaper;
 
 class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
 {
@@ -40,7 +41,7 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
      * @param string $escapeMode
      * @param int    $timeout      timeout of the wait loop in seconds (default to 1)
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = self::ESCAPE_MODE_SERIALIZE, $timeout = 1)
+    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE, $timeout = 1)
     {
         parent::__construct($host, $port, $user, $pass, $exchangeName, $escapeMode);
         $this->timeout = $timeout;

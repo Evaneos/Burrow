@@ -2,6 +2,7 @@
 namespace Burrow\Swarrot;
 
 use Burrow\QueuePublisher;
+use Burrow\Escaper;
 use Swarrot\Broker\Message;
 use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 
@@ -11,15 +12,21 @@ class SwarrotAsyncPublisher implements QueuePublisher
      * @var MessagePublisherInterface
      */
     private $publisher;
+    
+    /**
+     * @var string
+     */
+    private $escapeMode;
 
     /**
      * Constructor
      *
      * @param MessagePublisherInterface $publisher
      */
-    public function __construct(MessagePublisherInterface $publisher)
+    public function __construct(MessagePublisherInterface $publisher, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
     {
         $this->publisher = $publisher;
+        $this->escapeMode = $escapeMode;
     }
 
     /**
@@ -32,7 +39,7 @@ class SwarrotAsyncPublisher implements QueuePublisher
     public function publish($data, $routingKey = "")
     {
         $this->publisher->publish(
-            new Message(serialize($data), $this->getMessageProperties()),
+            new Message(Escaper::escape($data, $this->escapeMode), $this->getMessageProperties()),
             $routingKey ? $routingKey : null
         );
     }

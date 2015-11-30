@@ -5,6 +5,7 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueuePublisher;
+use Burrow\Escaper;
 
 class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
 {
@@ -23,7 +24,7 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
      * @param string $exchangeName
      * @param string $escapeMode
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
+    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
     {
         parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->exchangeName = $exchangeName;

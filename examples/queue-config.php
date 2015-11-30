@@ -13,7 +13,7 @@ require_once __DIR__ . '/base-info.php';
 $queueName = $argv[1];
 
 $admin = new \Burrow\RabbitMQ\AmqpAdministrator($host, $port, $user, $pass);
-$admin->declareExchange($exchangeName);
-$admin->declareAndBindQueue($exchangeName, $queueName);
+$admin->declareExchange($exchange);
+$admin->declareAndBindQueue($exchange, $queueName);
 
 echo 'Added queue "'.$queueName.'" to exchange'."\n";
