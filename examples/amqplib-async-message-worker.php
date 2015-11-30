@@ -10,8 +10,14 @@ if (!isset($argv[1])) {
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/base-info.php';
 
-$handler = new \Burrow\RabbitMQ\AmqpAsyncHandler($host, $port, $user, $pass, $argv[1]);
 
+
+$logger = new \Monolog\Logger('TEST');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output', 0));
+
+$handler = new \Burrow\RabbitMQ\AmqpAsyncHandler($host, $port, $user, $pass, $argv[1]);
 $handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
+$handler->setLogger($logger);
+
 $worker = new \Burrow\Worker($handler);
 $worker->run();
