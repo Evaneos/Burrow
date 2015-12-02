@@ -43,7 +43,8 @@ class ExceptionProcessor implements ProcessorInterface
             );
             
             if ($e instanceof ConsumerException) {
-                throw $e;
+                $this->logger and $this->logger->info('Closing AMqpAsyncHandler daemon...');
+                return false;
             }
         }
 

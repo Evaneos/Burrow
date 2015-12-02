@@ -10,6 +10,7 @@ use Swarrot\Broker\MessagePublisher\MessagePublisherInterface;
 use Swarrot\Consumer;
 use Swarrot\Processor\RPC\RpcClientProcessor;
 use Swarrot\Processor\Stack\Builder;
+use Psr\Log\LoggerInterface;
 
 class SwarrotSyncPublisher implements QueuePublisher
 {
@@ -37,6 +38,11 @@ class SwarrotSyncPublisher implements QueuePublisher
      * @var string
      */
     private $escapeMode;
+    
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * Constructor
@@ -44,11 +50,16 @@ class SwarrotSyncPublisher implements QueuePublisher
      * @param RpcMessagePublisher $publisher
      * @param int                 $timeout
      */
-    public function __construct(RpcMessagePublisher $publisher, $timeout = 1, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
-    {
+    public function __construct(
+            RpcMessagePublisher $publisher,
+            $timeout = 1,
+            $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE,
+            LoggerInterface $logger = null
+    ) {
         $this->publisher = $publisher;
         $this->timeout = $timeout;
         $this->escapeMode = $escapeMode;
+        $this->logger = $logger;
     }
 
     /**
@@ -75,8 +86,8 @@ class SwarrotSyncPublisher implements QueuePublisher
         $consumer = new Consumer(
             $returnProvider,
             (new Builder())
-                ->push('Swarrot\Processor\Ack\AckProcessor', $returnProvider)
-                ->push('Burrow\Swarrot\Processor\TimeoutProcessor')
+                ->push('Swarrot\Processor\Ack\AckProcessor', $returnProvider, $this->logger)
+                ->push('Burrow\Swarrot\Processor\TimeoutProcessor', $this->logger)
                 ->resolve(new RpcClientProcessor($processor))
         );
         $consumer->consume(
@@ -101,5 +112,16 @@ class SwarrotSyncPublisher implements QueuePublisher
             'correlation_id' => $this->correlationId,
             'reply_to' => $this->callbackQueue
         );
+    }
+    
+    /**
+     * Sets a logger instance on the object
+     *
+     * @param LoggerInterface $logger
+     * @return null
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 }

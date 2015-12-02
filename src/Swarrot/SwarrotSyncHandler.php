@@ -44,9 +44,10 @@ class SwarrotSyncHandler implements QueueHandler, Daemonizable, LoggerAwareInter
      *
      * @param RpcMessageProvider $messageProvider
      */
-    public function __construct(RpcMessageProvider $messageProvider)
+    public function __construct(RpcMessageProvider $messageProvider, LoggerInterface $logger = null)
     {
         $this->messageProvider = $messageProvider;
+        $this->logger = $logger;
     }
 
     /**
@@ -72,8 +73,8 @@ class SwarrotSyncHandler implements QueueHandler, Daemonizable, LoggerAwareInter
         }
 
         $processor = (new Builder())
-            ->push('Burrow\Swarrot\Processor\ExceptionProcessor')
-            ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider)
+            ->push('Burrow\Swarrot\Processor\ExceptionProcessor', $this->logger)
+            ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider, $this->logger)
             ->resolve(
                 new RpcServerProcessor(
                     new QueueConsumerProcessor($this->consumer),

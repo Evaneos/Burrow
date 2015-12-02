@@ -43,9 +43,10 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
      *
      * @param MessageProviderInterface $messageProvider
      */
-    public function __construct(MessageProviderInterface $messageProvider)
+    public function __construct(MessageProviderInterface $messageProvider, LoggerInterface $logger = null)
     {
         $this->messageProvider = $messageProvider;
+        $this->logger = $logger;
     }
 
     /**
@@ -71,8 +72,8 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
         }
 
         $processor = (new Builder())
-            ->push('Burrow\Swarrot\Processor\ExceptionProcessor')
-            ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider)
+            ->push('Burrow\Swarrot\Processor\ExceptionProcessor', $this->logger)
+            ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider, $this->logger)
             ->resolve(new QueueConsumerProcessor($this->consumer));
 
         $daemon = new Consumer($this->messageProvider, $processor);
