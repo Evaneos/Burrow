@@ -71,12 +71,12 @@ class SwarrotAsyncHandler implements QueueHandler, Daemonizable, LoggerAwareInte
         }
 
         $processor = (new Builder())
-            ->push('Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor')
+            ->push('Burrow\Swarrot\Processor\ExceptionProcessor')
             ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider)
             ->resolve(new QueueConsumerProcessor($this->consumer));
 
         $daemon = new Consumer($this->messageProvider, $processor);
-        $daemon->consume();
+        $daemon->consume(array('requeue_on_error' => true));
     }
 
     /**

@@ -72,7 +72,7 @@ class SwarrotSyncHandler implements QueueHandler, Daemonizable, LoggerAwareInter
         }
 
         $processor = (new Builder())
-            ->push('Swarrot\Processor\ExceptionCatcher\ExceptionCatcherProcessor')
+            ->push('Burrow\Swarrot\Processor\ExceptionProcessor')
             ->push('Swarrot\Processor\Ack\AckProcessor', $this->messageProvider)
             ->resolve(
                 new RpcServerProcessor(
@@ -82,7 +82,7 @@ class SwarrotSyncHandler implements QueueHandler, Daemonizable, LoggerAwareInter
             );
 
         $daemon = new Consumer($this->messageProvider, $processor);
-        $daemon->consume();
+        $daemon->consume(array('requeue_on_error' => true));
     }
 
     /**
