@@ -18,7 +18,8 @@
         "phpunit/phpunit" : "~4.0",
         "monolog/monolog": "~1.13",
         "league/event": "^2.1",
-        "mockery/mockery": "^0.9.4"
+        "mockery/mockery": "^0.9.4",
+        "symfony/console": "^2.7"
     },
 
     "autoload": {
@@ -35,12 +36,13 @@
     },
 
     "suggest": {
-        "league/event": "Allows to deal with event within your application."
+        "league/event": "Allows to deal with event within your application.",
+        "symfony/console": "Allow to use a CLI command"
     },
 
     "extra": {
         "branch-alias": {
-            "dev-master": "2.1.x-dev"
+            "dev-master": "2.5.x-dev"
         }
     }
 }
