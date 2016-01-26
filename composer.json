@@ -16,7 +16,9 @@
 
     "require-dev" : {
         "phpunit/phpunit" : "~4.0",
-        "monolog/monolog": "~1.13"
+        "monolog/monolog": "~1.13",
+        "league/event": "^2.1",
+        "mockery/mockery": "^0.9.4"
     },
 
     "autoload": {
@@ -24,6 +26,16 @@
             "Burrow\\": "src/",
             "Burrow\\Examples\\": "examples/src/"
         }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Burrow\\tests\\": "tests/"
+        }
+    },
+
+    "suggest": {
+        "league/event": "Allows to deal with event within your application."
     },
 
     "extra": {
