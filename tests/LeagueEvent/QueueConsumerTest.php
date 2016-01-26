@@ -21,9 +21,9 @@ class QueueConsumerTest extends \PHPUnit_Framework_TestCase
         $emitter = Mockery::mock(EmitterInterface::class);
         $consumer = new EventQueueConsumer($emitter);
 
-        $emitter->shouldReceive('emit')->with('event')->once();
+        $emitter->shouldReceive('emit')->with(['poney' => 'Eole'])->once();
 
-        $consumer->consume('event');
+        $consumer->consume(json_encode(['poney' => 'Eole']));
     }
     
     /**
@@ -35,10 +35,10 @@ class QueueConsumerTest extends \PHPUnit_Framework_TestCase
         $deserializer = Mockery::mock(EventDeserializer::class);
         $consumer = new EventQueueConsumer($emitter, $deserializer);
 
-        $deserializer->shouldReceive('deserialize')->with('event')->andReturn('deserializedEvent');
+        $deserializer->shouldReceive('deserialize')->with(['poney' => 'Eole'])->andReturn('deserializedEvent');
         $emitter->shouldReceive('emit')->with('deserializedEvent')->once();
 
-        $consumer->consume('event');
+        $consumer->consume(json_encode(['poney' => 'Eole']));
     }
 
 }

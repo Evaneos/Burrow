@@ -35,6 +35,8 @@ final class EventQueueConsumer implements QueueConsumer
      */
     public function consume($message)
     {
+        $message = json_decode($message, true);
+
         if($this->deserializer)
         {
             $message = $this->deserializer->deserialize($message);
