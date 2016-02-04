@@ -4,13 +4,10 @@ namespace Burrow\RabbitMQ;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use Burrow\Escaper;
 
 abstract class AmqpTemplate
 {
-    const ESCAPE_MODE_NONE      = 'none';
-    const ESCAPE_MODE_SERIALIZE = 'serialize';
-    const ESCAPE_MODE_JSON      = 'json';
-
     /**
      * @var AMQPStreamConnection
      */
@@ -35,7 +32,7 @@ abstract class AmqpTemplate
      * @param string $pass
      * @param string $escapeMode
      */
-    public function __construct($host, $port, $user, $pass, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
+    public function __construct($host, $port, $user, $pass, $escapeMode = Escaper::ESCAPE_MODE_SERIALIZE)
     {
         $this->connection = new AMQPLazyConnection($host, $port, $user, $pass);
         $this->channel = $this->connection->channel();
@@ -50,16 +47,7 @@ abstract class AmqpTemplate
      */
     protected function escape($message)
     {
-        $escapedMessage = $message;
-        switch($this->escapeMode) {
-            case self::ESCAPE_MODE_SERIALIZE :
-                $escapedMessage = serialize($message);
-                break;
-            case self::ESCAPE_MODE_JSON :
-                $escapedMessage = json_encode($message);
-                break;
-        }
-        return $escapedMessage;
+        return Escaper::escape($message, $this->escapeMode);
     }
 
     /**
@@ -70,15 +58,6 @@ abstract class AmqpTemplate
      */
     protected function unescape($message)
     {
-        $unescapedMessage = $message;
-        switch($this->escapeMode) {
-            case self::ESCAPE_MODE_SERIALIZE :
-                $unescapedMessage = unserialize($message);
-                break;
-            case self::ESCAPE_MODE_JSON :
-                $unescapedMessage = json_decode($message);
-                break;
-        }
-        return $unescapedMessage;
+        return Escaper::unescape($message, $this->escapeMode);
     }
 }
