@@ -46,8 +46,8 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
         $this->timeout = $timeout;
 
         $self = $this;
-        list($this->callbackQueue, , ) = $this->channel->queue_declare('', false, false, true, false);
-        $this->channel->basic_consume(
+        list($this->callbackQueue, , ) = $this->getChannel()->queue_declare('', false, false, true, false);
+        $this->getChannel()->basic_consume(
             $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
                 if ($message->get('correlation_id') == $self->getCorrelationId()) {
                     $self->setResponse($this->unescape($message->body));
@@ -88,7 +88,7 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
 
         while (!$this->response && $elapsedTime < $msTimeout) {
             $waitTimeout = ceil(($msTimeout - $elapsedTime) / 1000);
-            $this->channel->wait(null, false, $waitTimeout);
+            $this->getChannel()->wait(null, false, $waitTimeout);
             $elapsedTime = microtime(true) - $start;
         }
 
