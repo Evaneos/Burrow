@@ -17,9 +17,9 @@ abstract class AmqpTemplate
     protected $connection;
 
     /**
-     * @var AMQPChannel
+     * @var AMQPChannel|null
      */
-    protected $channel;
+    private $channel;
 
     /**
      * @var string
@@ -38,7 +38,6 @@ abstract class AmqpTemplate
     public function __construct($host, $port, $user, $pass, $escapeMode = self::ESCAPE_MODE_SERIALIZE)
     {
         $this->connection = new AMQPLazyConnection($host, $port, $user, $pass);
-        $this->channel = $this->connection->channel();
         $this->escapeMode = $escapeMode;
     }
 
@@ -80,5 +79,14 @@ abstract class AmqpTemplate
                 break;
         }
         return $unescapedMessage;
+    }
+
+    protected function getChannel()
+    {
+        if(null === $this->channel) {
+            $this->channel = $this->connection->channel();
+        }
+
+        return $this->channel;
     }
 }

@@ -115,8 +115,8 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
     {
         $self = $this;
         
-        $this->channel->basic_qos(null, 1, null);
-        $this->channel->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
+        $this->getChannel()->basic_qos(null, 1, null);
+        $this->getChannel()->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
             try {
                 $self->consume($message);
                 $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
@@ -166,11 +166,11 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
         
         $this->logger->info('Starting AMqpAsyncHandler daemon...');
         
-        while (count($this->channel->callbacks) && !$this->stop) {
-            $this->channel->wait();
+        while (count($this->getChannel()->callbacks) && !$this->stop) {
+            $this->getChannel()->wait();
         }
 
-        $this->channel->close();
+        $this->getChannel()->close();
         $this->connection->close();
     }
 

@@ -11,7 +11,7 @@ class AmqpAdministrator extends AmqpTemplate
     const TOPIC   = 'topic';
     const HEADERS = 'headers';
     const FANOUT  = 'fanout';
-    
+
     /**
      * Declare a persistent queue
      *
@@ -20,9 +20,9 @@ class AmqpAdministrator extends AmqpTemplate
      */
     public function declareSimpleQueue($queueName)
     {
-        $this->channel->queue_declare($queueName, false, true, false, false);
+        $this->getChannel()->queue_declare($queueName, false, true, false, false);
     }
-    
+
     /**
      * Declare an exchange
      *
@@ -32,9 +32,9 @@ class AmqpAdministrator extends AmqpTemplate
      */
     public function declareExchange($queueName, $type = self::FANOUT)
     {
-        $this->channel->exchange_declare($queueName, $type, false, true, false);
+        $this->getChannel()->exchange_declare($queueName, $type, false, true, false);
     }
-    
+
     /**
      * Bind an existing queue to an exchange
      *
@@ -45,9 +45,9 @@ class AmqpAdministrator extends AmqpTemplate
      */
     public function bindQueue($exchange, $queueName, $routingKey = '')
     {
-        $this->channel->queue_bind($queueName, $exchange, $routingKey);
+        $this->getChannel()->queue_bind($queueName, $exchange, $routingKey);
     }
-    
+
     /**
      * Create a persisting queue and bind it to an exchange
      *

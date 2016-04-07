@@ -38,7 +38,7 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
      */
     public function publish($data, $routingKey = '')
     {
-        $this->channel->basic_publish(
+        $this->getChannel()->basic_publish(
             new AMQPMessage($this->escape($data), $this->getMessageProperties()),
             $this->exchangeName,
             $routingKey
