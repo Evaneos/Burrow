@@ -11,7 +11,9 @@
 
     "require" : {
         "php-amqplib/php-amqplib": "^2.6",
-        "psr/log": "~1.0"
+        "psr/log": "~1.0",
+        "symfony/console": "^3.2",
+        "beberlei/assert": "^2.6"
     },
 
     "require-dev" : {
@@ -38,9 +40,11 @@
         "league/event": "Allows to deal with event within your application."
     },
 
+    "bin": [ "bin/burrow" ],
+
     "extra": {
         "branch-alias": {
-            "dev-master": "2.4.x-dev"
+            "dev-master": "3.3.x-dev"
         }
     }
 }

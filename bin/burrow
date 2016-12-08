@@ -1,0 +1,106 @@
+#!/usr/bin/env php
+<?php
+
+use Burrow\CLI\BindCommand;
+use Burrow\CLI\DeclareExchangeCommand;
+use Burrow\CLI\DeclareQueueCommand;
+use Burrow\CLI\InitCommand;
+use Burrow\RabbitMQ\AmqpAdministrator;
+use Symfony\Component\Console\Application;
+
+autoload();
+$config = getConfig();
+
+$administrator = new AmqpAdministrator(
+    $config['host'],
+    $config['port'],
+    $config['user'],
+    $config['pwd']
+);
+
+$application = new Application('BURROW', '1.0.0');
+
+$application->add(new DeclareQueueCommand($administrator));
+$application->add(new DeclareExchangeCommand($administrator));
+$application->add(new BindCommand($administrator));
+$application->add(new InitCommand($administrator));
+
+$application->run();
+
+function autoload()
+{
+    $autoloadFiles = [__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'];
+
+    foreach ($autoloadFiles as $autoloadFile) {
+        if (file_exists($autoloadFile)) {
+            require_once $autoloadFile;
+        }
+    }
+}
+
+/**
+ * @return null|string
+ */
+function getConfig()
+{
+    $directories = array(getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config');
+
+    $configFile = null;
+    foreach ($directories as $directory) {
+        $configFile = $directory . DIRECTORY_SEPARATOR . 'burrow-cli-config.php';
+
+        if (file_exists($configFile)) {
+            break;
+        }
+    }
+
+    if ( $configFile === null || ! file_exists($configFile)) {
+        showHelp();
+        exit(1);
+    }
+
+    if ( ! is_readable($configFile)) {
+        showReadErrorMessage($configFile);
+        exit(1);
+    }
+
+    $config = require $configFile;
+
+    if (!is_array($config) ||
+        ! isset($config['host']) ||
+        ! isset($config['port']) ||
+        ! isset($config['user']) ||
+        ! isset($config['pwd'])
+    ) {
+        echo 'Configuration file must return an array containing the "host", "port", "user" and "pwd" keys.' . "\n";
+        exit(1);
+    }
+
+    return $config;
+}
+
+function showHelp()
+{
+    echo <<<HELP
+You are missing a "burrow-cli-config.php" or "config/burrow-cli-config.php" file
+in your project, which is required to get the Burrow Console working. You can use
+the following sample as a template:
+
+<?php
+return [
+    'host' => '<your_host>',
+    'port' => '<your_port>',
+    'user' => '<your_user>',
+    'pwd' => '<your_password>'
+];
+
+HELP;
+}
+
+/**
+ * @param $configFile
+ */
+function showReadErrorMessage($configFile)
+{
+    echo 'Configuration file [' . $configFile . '] does not have read permission.' . "\n";
+}
