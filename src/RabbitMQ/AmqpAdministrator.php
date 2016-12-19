@@ -61,4 +61,26 @@ class AmqpAdministrator extends AmqpTemplate
         $this->declareSimpleQueue($queueName);
         $this->bindQueue($exchange, $queueName, $routingKey);
     }
+
+    /**
+     * Delete a queue
+     *
+     * @param string $queueName
+     * @return void
+     */
+    public function deleteQueue($queueName)
+    {
+        $this->getChannel()->queue_delete($queueName);
+    }
+
+    /**
+     * Delete an exchange
+     *
+     * @param string $exchangeName
+     * @return void
+     */
+    public function deleteExchange($exchangeName)
+    {
+        $this->getChannel()->exchange_delete($exchangeName);
+    }
 }
