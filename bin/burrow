@@ -4,6 +4,8 @@
 use Burrow\CLI\BindCommand;
 use Burrow\CLI\DeclareExchangeCommand;
 use Burrow\CLI\DeclareQueueCommand;
+use Burrow\CLI\DeleteExchangeCommand;
+use Burrow\CLI\DeleteQueueCommand;
 use Burrow\CLI\InitCommand;
 use Burrow\RabbitMQ\AmqpAdministrator;
 use Symfony\Component\Console\Application;
@@ -24,6 +26,8 @@ $application->add(new DeclareQueueCommand($administrator));
 $application->add(new DeclareExchangeCommand($administrator));
 $application->add(new BindCommand($administrator));
 $application->add(new InitCommand($administrator));
+$application->add(new DeleteQueueCommand($administrator));
+$application->add(new DeleteExchangeCommand($administrator));
 
 $application->run();
 
