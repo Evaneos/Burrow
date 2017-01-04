@@ -4,6 +4,7 @@ namespace Burrow\RabbitMQ;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class AmqpTemplate
 {
@@ -50,11 +51,11 @@ abstract class AmqpTemplate
     protected function escape($message)
     {
         $escapedMessage = $message;
-        switch($this->escapeMode) {
-            case self::ESCAPE_MODE_SERIALIZE :
+        switch ($this->escapeMode) {
+            case self::ESCAPE_MODE_SERIALIZE:
                 $escapedMessage = serialize($message);
                 break;
-            case self::ESCAPE_MODE_JSON :
+            case self::ESCAPE_MODE_JSON:
                 $escapedMessage = json_encode($message);
                 break;
         }
@@ -70,23 +71,36 @@ abstract class AmqpTemplate
     protected function unescape($message)
     {
         $unescapedMessage = $message;
-        switch($this->escapeMode) {
-            case self::ESCAPE_MODE_SERIALIZE :
+        switch ($this->escapeMode) {
+            case self::ESCAPE_MODE_SERIALIZE:
                 $unescapedMessage = unserialize($message);
                 break;
-            case self::ESCAPE_MODE_JSON :
+            case self::ESCAPE_MODE_JSON:
                 $unescapedMessage = json_decode($message);
                 break;
         }
         return $unescapedMessage;
     }
 
+    /**
+     * @return AMQPChannel
+     */
     protected function getChannel()
     {
-        if(null === $this->channel) {
+        if (null === $this->channel) {
             $this->channel = $this->connection->channel();
         }
 
         return $this->channel;
+    }
+
+    /**
+     * @param AMQPMessage $message
+     *
+     * @return array
+     */
+    protected function getHeaders(AMQPMessage $message)
+    {
+        return $message->has('application_headers') ? $message->get('application_headers')->getNativeData() : [];
     }
 }

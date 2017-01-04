@@ -9,8 +9,8 @@ if (!isset($argv[1])) {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$publisher = new \Burrow\RabbitMQ\AmqpSyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'xchange');
+$publisher = new \Burrow\RabbitMQ\AmqpSyncPublisher('default', 5672, 'guest', 'guest', 'xchange');
 
 for ($i = 0; $i < $argv[1]; ++$i) {
-    echo $publisher->publish('event #'.$i)."\n";
+    echo $publisher->publish('event #'.$i, '', ['test' => 'testValue'])."\n";
 }

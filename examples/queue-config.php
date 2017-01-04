@@ -12,7 +12,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $exchangeName = 'xchange';
 $queueName = $argv[1];
 
-$admin = new \Burrow\RabbitMQ\AmqpAdministrator('127.0.0.1', 5672, 'guest', 'guest');
+$admin = new \Burrow\RabbitMQ\AmqpAdministrator('default', 5672, 'guest', 'guest');
 $admin->declareExchange($exchangeName);
 $admin->declareAndBindQueue($exchangeName, $queueName);
 

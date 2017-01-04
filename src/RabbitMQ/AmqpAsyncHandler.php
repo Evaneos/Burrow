@@ -1,14 +1,10 @@
 <?php
 namespace Burrow\RabbitMQ;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueueHandler;
-use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
 
 class AmqpAsyncHandler extends AbstractAmqpHandler implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
@@ -18,6 +14,6 @@ class AmqpAsyncHandler extends AbstractAmqpHandler implements QueueHandler, Daem
      */
     public function consume(AMQPMessage $message)
     {
-        $this->getConsumer()->consume($this->unescape($message->body));
+        $this->getConsumer()->consume($this->unescape($message->body), $this->getHeaders($message));
     }
 }

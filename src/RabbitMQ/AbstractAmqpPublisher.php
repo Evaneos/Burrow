@@ -1,10 +1,9 @@
 <?php
 namespace Burrow\RabbitMQ;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Burrow\QueuePublisher;
+use PhpAmqpLib\Wire\AMQPTable;
 
 class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
 {
@@ -32,14 +31,16 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
     /**
      * Publish a message on the queue
      *
-     * @param string $data
-     * @param string $routingKey
+     * @param string   $data
+     * @param string   $routingKey
+     * @param string[] $headers
+     *
      * @return mixed|null|void
      */
-    public function publish($data, $routingKey = '')
+    public function publish($data, $routingKey = '', array $headers = [])
     {
         $this->getChannel()->basic_publish(
-            new AMQPMessage($this->escape($data), $this->getMessageProperties()),
+            new AMQPMessage($this->escape($data), $this->getMessageProperties($headers)),
             $this->exchangeName,
             $routingKey
         );
@@ -48,10 +49,15 @@ class AbstractAmqpPublisher extends AmqpTemplate implements QueuePublisher
     /**
      * Returns the message parameters
      *
+     * @param string[] $headers
+     *
      * @return array
      */
-    protected function getMessageProperties()
+    protected function getMessageProperties(array $headers = [])
     {
-        return array('delivery_mode' => 2);
+        return [
+            'delivery_mode' => 2,
+            'application_headers' => new AMQPTable($headers)
+        ];
     }
 }

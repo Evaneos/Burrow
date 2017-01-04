@@ -1,14 +1,11 @@
 <?php
 namespace Burrow\RabbitMQ;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Message\AMQPMessage;
-use Burrow\QueueHandler;
-use Burrow\QueueConsumer;
 use Burrow\Daemonizable;
+use Burrow\QueueHandler;
+use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
 
 class AmqpSyncHandler extends AbstractAmqpHandler implements QueueHandler, Daemonizable, LoggerAwareInterface
 {
@@ -18,13 +15,15 @@ class AmqpSyncHandler extends AbstractAmqpHandler implements QueueHandler, Daemo
      */
     public function consume(AMQPMessage $message)
     {
-        $return = $this->getConsumer()->consume($this->unescape($message->body));
+        $headers = $this->getHeaders($message);
+        $return = $this->getConsumer()->consume($this->unescape($message->body), $headers);
         $message->delivery_info['channel']->basic_publish(
             new AMQPMessage(
                 $this->escape($return),
-                array(
-                    'correlation_id' => $message->get('correlation_id')
-                )
+                [
+                    'correlation_id' => $message->get('correlation_id'),
+                    'application_headers' => new AMQPTable($headers)
+                ]
             ),
             '',
             $message->get('reply_to')
