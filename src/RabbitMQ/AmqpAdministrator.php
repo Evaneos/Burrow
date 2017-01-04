@@ -1,9 +1,6 @@
 <?php
-namespace Burrow\RabbitMQ;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Message\AMQPMessage;
+namespace Burrow\RabbitMQ;
 
 class AmqpAdministrator extends AmqpTemplate
 {

@@ -66,13 +66,11 @@ class BindCommand extends Command
             $routingKey
         );
 
-        $output->writeln(
-            sprintf(
-                '<info>Bind exchange <comment>%s</comment> to queue <comment>%s</comment> [<comment>%s</comment>]</info>',
-                $exchange,
-                $queue,
-                $routingKey
-            )
-        );
+        $output->writeln(sprintf(
+            '<info>Bind exchange <comment>%s</comment> to queue <comment>%s</comment> [<comment>%s</comment>]</info>',
+            $exchange,
+            $queue,
+            $routingKey
+        ));
     }
 }

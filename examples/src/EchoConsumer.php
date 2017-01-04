@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow\Examples;
 
 use Burrow\QueueConsumer;

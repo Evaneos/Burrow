@@ -157,14 +157,13 @@ class InitCommand extends Command
 
                 $this->burrowAdministrator->declareAndBindQueue($exchangeName, $queueName, $routingKey);
 
-                $output->writeln(
-                    sprintf(
-                        '<info>Bind exchange <comment>%s</comment> to queue <comment>%s</comment> [<comment>%s</comment>]</info>',
-                        $exchangeName,
-                        $queueName,
-                        $routingKey
-                    )
-                );
+                $output->writeln(sprintf(
+                    '<info>Bind exchange <comment>%s</comment> to queue ' .
+                    '<comment>%s</comment> [<comment>%s</comment>]</info>',
+                    $exchangeName,
+                    $queueName,
+                    $routingKey
+                ));
             }
         }
     }

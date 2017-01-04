@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow\RabbitMQ;
 
 use PhpAmqpLib\Message\AMQPMessage;

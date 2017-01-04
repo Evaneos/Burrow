@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow\RabbitMQ;
 
 use Burrow\Exception\ConsumerException;
@@ -159,7 +160,7 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
                         $message->delivery_info['delivery_tag'],
                         $this->requeueOnFailure
                     );
-                    $self->getLogger()->error('Received exception', array('exception' => $e));
+                    $self->getLogger()->error('Received exception', ['exception' => $e]);
 
                     if ($e instanceof ConsumerException) {
                         $self->shutdown();

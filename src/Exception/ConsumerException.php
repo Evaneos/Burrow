@@ -1,4 +1,7 @@
 <?php
+
 namespace Burrow\Exception;
 
-class ConsumerException extends \Exception {}
+class ConsumerException extends \Exception
+{
+}
