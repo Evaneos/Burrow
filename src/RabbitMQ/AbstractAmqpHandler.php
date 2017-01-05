@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow\RabbitMQ;
 
 use Burrow\Exception\ConsumerException;
@@ -52,8 +53,15 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
      * @param string $escapeMode
      * @param bool $requeueOnFailure
      */
-    public function __construct($host, $port, $user, $pass, $queueName, $escapeMode = self::ESCAPE_MODE_SERIALIZE, $requeueOnFailure = true)
-    {
+    public function __construct(
+        $host,
+        $port,
+        $user,
+        $pass,
+        $queueName,
+        $escapeMode = self::ESCAPE_MODE_SERIALIZE,
+        $requeueOnFailure = true
+    ) {
         parent::__construct($host, $port, $user, $pass, $escapeMode);
         $this->queueName = $queueName;
         $this->logger = new NullLogger();
@@ -122,33 +130,44 @@ abstract class AbstractAmqpHandler extends AmqpTemplate implements QueueHandler,
         $self = $this;
 
         $this->getChannel()->basic_qos(null, 1, null);
-        $this->getChannel()->basic_consume($this->queueName, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
-            try {
-                $self->consume($message);
-                $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+        $this->getChannel()->basic_consume(
+            $this->queueName,
+            '',
+            false,
+            false,
+            false,
+            false,
+            function (AMQPMessage $message) use ($self) {
+                try {
+                    $self->consume($message);
+                    $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
 
-                $currentMemory = memory_get_usage(true);
-                if ($self->getLogger() && $self->getMemory() > 0 && $currentMemory > $self->getMemory()) {
-                    $self->getLogger()
-                        ->warning(
-                            'Memory usage increased',
-                            array (
-                                'bytes_increased_by' => $currentMemory - $self->getMemory(),
-                                'bytes_current_memory' => $currentMemory
-                            )
-                        );
-                }
-                $self->setMemory($currentMemory);
-            } catch (\Exception $e) {
-                // beware of infinite loop !
-                $message->delivery_info['channel']->basic_reject($message->delivery_info['delivery_tag'], $this->requeueOnFailure);
-                $self->getLogger()->error('Received exception', array('exception' => $e));
+                    $currentMemory = memory_get_usage(true);
+                    if ($self->getLogger() && $self->getMemory() > 0 && $currentMemory > $self->getMemory()) {
+                        $self->getLogger()
+                            ->warning(
+                                'Memory usage increased',
+                                array (
+                                    'bytes_increased_by' => $currentMemory - $self->getMemory(),
+                                    'bytes_current_memory' => $currentMemory
+                                )
+                            );
+                    }
+                    $self->setMemory($currentMemory);
+                } catch (\Exception $e) {
+                    // beware of infinite loop !
+                    $message->delivery_info['channel']->basic_reject(
+                        $message->delivery_info['delivery_tag'],
+                        $this->requeueOnFailure
+                    );
+                    $self->getLogger()->error('Received exception', ['exception' => $e]);
 
-                if($e instanceof ConsumerException) {
-                    $self->shutdown();
+                    if ($e instanceof ConsumerException) {
+                        $self->shutdown();
+                    }
                 }
             }
-        });
+        );
     }
 
     /**

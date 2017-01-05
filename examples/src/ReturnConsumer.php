@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow\Examples;
 
 use Burrow\QueueConsumer;
@@ -6,10 +7,12 @@ use Burrow\QueueConsumer;
 class ReturnConsumer implements QueueConsumer
 {
     /**
-     * @param mixed $message
-     * @return mixed|null|void
+     * @param mixed    $message
+     * @param string[] $headers
+     *
+     * @return mixed
      */
-    public function consume($message)
+    public function consume($message, array $headers = [])
     {
         return $message;
     }

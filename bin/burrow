@@ -47,7 +47,7 @@ function autoload()
  */
 function getConfig()
 {
-    $directories = array(getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config');
+    $directories = [getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config'];
 
     $configFile = null;
     foreach ($directories as $directory) {

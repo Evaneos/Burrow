@@ -2,7 +2,6 @@
 
 namespace Burrow\CLI;
 
-use Assert\Assertion;
 use Burrow\RabbitMQ\AmqpAdministrator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

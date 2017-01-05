@@ -1,11 +1,10 @@
 <?php
+
 namespace Burrow\RabbitMQ;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
+use Burrow\QueuePublisher;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
-use Burrow\QueuePublisher;
 
 class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
 {
@@ -20,7 +19,7 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
     private $correlationId;
 
     /**
-     * @var string
+     * @var mixed
      */
     private $response;
 
@@ -40,15 +39,28 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
      * @param string $escapeMode
      * @param int    $timeout      timeout of the wait loop in seconds (default to 1)
      */
-    public function __construct($host, $port, $user, $pass, $exchangeName, $escapeMode = self::ESCAPE_MODE_SERIALIZE, $timeout = 1)
-    {
+    public function __construct(
+        $host,
+        $port,
+        $user,
+        $pass,
+        $exchangeName,
+        $escapeMode = self::ESCAPE_MODE_SERIALIZE,
+        $timeout = 1
+    ) {
         parent::__construct($host, $port, $user, $pass, $exchangeName, $escapeMode);
         $this->timeout = $timeout;
 
         $self = $this;
         list($this->callbackQueue, , ) = $this->getChannel()->queue_declare('', false, false, true, false);
         $this->getChannel()->basic_consume(
-            $this->callbackQueue, '', false, false, false, false, function (AMQPMessage $message) use ($self) {
+            $this->callbackQueue,
+            '',
+            false,
+            false,
+            false,
+            false,
+            function (AMQPMessage $message) use ($self) {
                 if ($message->get('correlation_id') == $self->getCorrelationId()) {
                     $self->setResponse($this->unescape($message->body));
                 }
@@ -59,11 +71,13 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
     /**
      * Publish a message on the queue
      *
-     * @param  string $data
-     * @param  string $routingKey
-     * @return mixed|null|void
+     * @param string   $data
+     * @param string   $routingKey
+     * @param string[] $headers
+     *
+     * @return mixed
      */
-    public function publish($data, $routingKey = '')
+    public function publish($data, $routingKey = '', array $headers = [])
     {
         $this->response = null;
         $this->correlationId = uniqid();
@@ -100,11 +114,13 @@ class AmqpSyncPublisher extends AbstractAmqpPublisher implements QueuePublisher
     /**
      * Returns the message parameters
      *
+     * @param string[] $headers
+     *
      * @return array
      */
-    protected function getMessageProperties()
+    protected function getMessageProperties(array $headers = [])
     {
-        $properties = parent::getMessageProperties();
+        $properties = parent::getMessageProperties($headers);
         $properties['correlation_id'] = $this->correlationId;
         $properties['reply_to'] = $this->callbackQueue;
         return $properties;

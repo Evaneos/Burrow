@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow;
 
 use Psr\Log\LoggerAwareInterface;
@@ -44,9 +45,9 @@ class Worker implements LoggerAwareInterface
 
         if (function_exists('pcntl_signal')) {
             declare (ticks = 1);
-            pcntl_signal(SIGTERM, array($this, 'signalHandler'));
-            pcntl_signal(SIGINT, array($this, 'signalHandler'));
-            pcntl_signal(SIGHUP, array($this, 'signalHandler'));
+            pcntl_signal(SIGTERM, [$this, 'signalHandler']);
+            pcntl_signal(SIGINT, [$this, 'signalHandler']);
+            pcntl_signal(SIGHUP, [$this, 'signalHandler']);
         }
 
         $this->daemonizable->daemonize();
@@ -61,12 +62,12 @@ class Worker implements LoggerAwareInterface
         switch ($signal) {
             case SIGINT:
             case SIGTERM:
-                $this->logger->alert('Worker killed or terminated', array('sessionId', $this->sessionId));
+                $this->logger->alert('Worker killed or terminated', ['sessionId', $this->sessionId]);
                 $this->daemonizable->shutdown();
                 exit(1);
                 break;
             case SIGHUP:
-                $this->logger->info('Starting daemon', array('session' => $this->sessionId));
+                $this->logger->info('Starting daemon', ['session' => $this->sessionId]);
                 break;
         }
     }
