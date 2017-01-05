@@ -3,20 +3,17 @@
 namespace Burrow;
 
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
 class Worker implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var string
      */
     private $sessionId;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var Daemonizable
@@ -37,11 +34,13 @@ class Worker implements LoggerAwareInterface
     /**
      * Run as a daemon
      *
+     * @param string $sessionId
+     *
      * @return void
      */
-    public function run()
+    public function run($sessionId = null)
     {
-        $this->sessionId = uniqid();
+        $this->sessionId = ($sessionId !== null) ? $sessionId : uniqid();
 
         if (function_exists('pcntl_signal')) {
             declare (ticks = 1);
@@ -70,16 +69,5 @@ class Worker implements LoggerAwareInterface
                 $this->logger->info('Starting daemon', ['session' => $this->sessionId]);
                 break;
         }
-    }
-
-    /**
-     * Sets a logger instance on the object
-     *
-     * @param  LoggerInterface $logger
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
     }
 }

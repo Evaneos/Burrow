@@ -2,7 +2,7 @@
 
 namespace Burrow\CLI;
 
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,19 +10,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeclareQueueCommand extends Command
 {
-    /** @var AmqpAdministrator */
-    private $burrowAdministrator;
+    /** @var Driver */
+    private $driver;
 
     /**
      * DeclareQueueCommand constructor.
      *
-     * @param AmqpAdministrator $burrowAdministrator
+     * @param Driver $driver
      */
-    public function __construct(AmqpAdministrator $burrowAdministrator)
+    public function __construct(Driver $driver)
     {
         parent::__construct();
 
-        $this->burrowAdministrator = $burrowAdministrator;
+        $this->driver = $driver;
     }
 
     protected function configure()
@@ -45,7 +45,7 @@ class DeclareQueueCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $queue = $input->getArgument('name');
-        $this->burrowAdministrator->declareSimpleQueue($queue);
+        $this->driver->declareSimpleQueue($queue);
         $output->writeln(sprintf('<info>Declare queue <comment>%s</comment></info>', $queue));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Burrow\CLI;
 
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,19 +10,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeleteExchangeCommand extends Command
 {
-    /** @var AmqpAdministrator */
-    private $burrowAdministrator;
+    /** @var Driver */
+    private $driver;
 
     /**
      * DeclareQueueCommand constructor.
      *
-     * @param AmqpAdministrator $burrowAdministrator
+     * @param Driver $driver
      */
-    public function __construct(AmqpAdministrator $burrowAdministrator)
+    public function __construct(Driver $driver)
     {
         parent::__construct();
 
-        $this->burrowAdministrator = $burrowAdministrator;
+        $this->driver = $driver;
     }
 
     protected function configure()
@@ -46,7 +46,7 @@ class DeleteExchangeCommand extends Command
     {
         $name = $input->getArgument('name');
 
-        $this->burrowAdministrator->deleteExchange($name);
+        $this->driver->deleteExchange($name);
         $output->writeln(sprintf('<info>Delete exchange <comment>%s</comment></info>', $name));
     }
 }

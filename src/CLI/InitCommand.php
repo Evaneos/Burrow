@@ -3,7 +3,7 @@
 namespace Burrow\CLI;
 
 use Assert\Assertion;
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,19 +11,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InitCommand extends Command
 {
-    /** @var AmqpAdministrator */
-    private $burrowAdministrator;
+    /** @var Driver */
+    private $driver;
 
     /**
      * DeclareQueueCommand constructor.
      *
-     * @param AmqpAdministrator $burrowAdministrator
+     * @param Driver $driver
      */
-    public function __construct(AmqpAdministrator $burrowAdministrator)
+    public function __construct(Driver $driver)
     {
         parent::__construct();
 
-        $this->burrowAdministrator = $burrowAdministrator;
+        $this->driver = $driver;
     }
 
     protected function configure()
@@ -124,7 +124,7 @@ class InitCommand extends Command
     {
         $queues = $configuration['queues'];
         foreach ($queues as $queue) {
-            $this->burrowAdministrator->declareSimpleQueue($queue);
+            $this->driver->declareSimpleQueue($queue);
             $output->writeln(sprintf('<info>Declare queue <comment>%s</comment></info>', $queue));
         }
     }
@@ -140,7 +140,7 @@ class InitCommand extends Command
             $exchangeName = $exchangeInformation['name'];
             $exchangeType = $exchangeInformation['type'];
 
-            $this->burrowAdministrator->declareExchange($exchangeName, $exchangeType);
+            $this->driver->declareExchange($exchangeName, $exchangeType);
 
             $output->writeln(
                 sprintf(
@@ -155,7 +155,7 @@ class InitCommand extends Command
                 $queueName = $queueInformation['name'];
                 $routingKey = isset($queueInformation['routingKey']) ? $queueInformation['routingKey'] : '';
 
-                $this->burrowAdministrator->declareAndBindQueue($exchangeName, $queueName, $routingKey);
+                $this->driver->declareAndBindQueue($exchangeName, $queueName, $routingKey);
 
                 $output->writeln(sprintf(
                     '<info>Bind exchange <comment>%s</comment> to queue ' .

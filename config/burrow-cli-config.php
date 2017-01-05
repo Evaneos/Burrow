@@ -1,7 +1,7 @@
 <?php
 // Config example
 return [
-    'host' => 'localhost',
+    'host' => 'default',
     'port' => '5672',
     'user' => 'guest',
     'pwd' => 'guest'

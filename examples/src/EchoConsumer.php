@@ -11,10 +11,12 @@ class EchoConsumer implements QueueConsumer
      * @param string[] $headers
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function consume($message, array $headers = [])
     {
-        var_dump($headers);
+        print_r($headers);
         echo $message . "\n";
     }
 }

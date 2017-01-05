@@ -7,7 +7,7 @@ interface QueueConsumer
     /**
      * Consumes a message
      *
-     * @param string   $message
+     * @param mixed    $message
      * @param string[] $headers
      *
      * @return null|string|void

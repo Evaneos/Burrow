@@ -1,12 +1,13 @@
 Burrow
 ======
 
-Evaneos message queue library (with a RabbitMQ Implementation)
+Evaneos AMQP library able to use both [php-amqplib](https://github.com/php-amqplib/php-amqplib)
+and [pecl amqp C librairy](https://github.com/pdezwart/php-amqp)
 
 Installation
 ------------
 ```bash
-composer require evaneos/Burrow
+composer require evaneos/burrow
 ```
 Usage
 -----
@@ -14,12 +15,17 @@ Usage
 See examples directory for more details  
 To test it, you may use a rabbitmq container, this one feets perfectly 
 ```bash
-docker run -d -p 5672:5672 dockerfile/rabbitmq
+docker run -d -p 5672:5672 rabbitmq
 ```
 
 ### Declare an exchange and bind a queue with RabbitMQ
 ```php
-$admin = new \Burrow\RabbitMQ\AmqpAdministrator('127.0.0.1', 5672, 'guest', 'guest');
+$admin = DriverFactory::getDriver([
+    'host' => 'localhost',
+    'port' => '5672',
+    'user' => 'guest',
+    'pwd' => 'guest'
+]);
 $admin->declareExchange('exchange');
 $admin->declareAndBindQueue('exchange', 'my_queue');
 ```
@@ -29,15 +35,27 @@ Asynchronous management
 
 #### Dispatching an async message with RabbitMQ
 ```php
-$publisher = new \Burrow\RabbitMQ\AmqpAsyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'exchange');
-$publisher->publish('my_message');
+$driver = DriverFactory::getDriver([
+    'host' => 'localhost',
+    'port' => '5672',
+    'user' => 'guest',
+    'pwd' => 'guest'
+]);
+$publisher = new AsyncPublisher($driver, 'exchange');
+$publisher->publish('message', 'routing_key', [ 'meta' => 'data' ]);
 ```
 
 #### Write a daemon to consume async messages from RabbitMQ
 ```php
-$handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('127.0.0.1', 5672, 'guest', 'guest', 'my_queue');
-$handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
-$worker = new \Burrow\Worker($handler);
+$driver = DriverFactory::getDriver([
+    'host' => 'default',
+    'port' => '5672',
+    'user' => 'guest',
+    'pwd' => 'guest'
+]);
+$handler = new UniversalHandler($driver, 'my_queue');
+$handler->registerConsumer(new EchoConsumer());
+$worker = new Worker($handler);
 $worker->run();
 ```
 
@@ -48,16 +66,33 @@ Synchronous management
 
 #### Dispatching an async message with RabbitMQ
 ```php
-$publisher = new \Burrow\RabbitMQ\AmqpSyncPublisher('127.0.0.1', 5672, 'guest', 'guest', 'exchange');
-$publisher->publish('my_message');
+$driver = DriverFactory::getDriver([
+   'host' => 'default',
+   'port' => '5672',
+   'user' => 'guest',
+   'pwd' => 'guest'
+]);
+$publisher = new SyncPublisher($driver, 'xchange');
+$publisher->publish('my_message', 'routing_key', [ 'meta' => 'data' ]);
 ```
 
 #### Write a daemon to consume async messages from RabbitMQ
 ```php
-$handler = new \Burrow\RabbitMQ\AmqpSyncHandler('127.0.0.1', 5672, 'guest', 'guest', 'my_queue');
-$handler->registerConsumer(new \Burrow\Examples\ReturnConsumer());
-$worker = new \Burrow\Worker($handler);
+$driver = DriverFactory::getDriver([
+   'host' => 'default',
+   'port' => '5672',
+   'user' => 'guest',
+   'pwd' => 'guest'
+]);
+$handler = new UniversalHandler($driver, $argv[1]);
+$handler->registerConsumer(new ReturnConsumer());
+$worker = new Worker($handler);
 $worker->run();
 ```
 
 In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the publisher terminal.
+
+Examples
+--------
+
+All these examples are also available in the `example` directory.

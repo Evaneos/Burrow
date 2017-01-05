@@ -3,7 +3,8 @@
 
 date_default_timezone_set('Europe/Paris');
 
-use Burrow\Driver\DriverFactory;
+use Burrow\Driver\PhpAmqpLibDriver;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
 
 if (!isset($argv[1])) {
     $io = fopen('php://stderr', 'w+');
@@ -16,12 +17,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $exchangeName = 'xchange';
 $queueName = $argv[1];
 
-$admin = DriverFactory::getDriver([
-    'host' => 'default',
-    'port' => '5672',
-    'user' => 'guest',
-    'pwd' => 'guest'
-]);
+$admin = new PhpAmqpLibDriver(new AMQPLazyConnection('default', 5672, 'guest', 'guest'));
 $admin->declareExchange($exchangeName);
 $admin->declareAndBindQueue($exchangeName, $queueName);
 

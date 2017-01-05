@@ -14,6 +14,7 @@ class ReturnConsumer implements QueueConsumer
      */
     public function consume($message, array $headers = [])
     {
+        print_r($headers);
         return $message;
     }
 }

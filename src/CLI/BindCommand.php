@@ -2,7 +2,7 @@
 
 namespace Burrow\CLI;
 
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,19 +11,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class BindCommand extends Command
 {
-    /** @var AmqpAdministrator */
-    private $burrowAdministrator;
+    /** @var Driver */
+    private $driver;
 
     /**
      * DeclareQueueCommand constructor.
      *
-     * @param AmqpAdministrator $burrowAdministrator
+     * @param Driver $driver
      */
-    public function __construct(AmqpAdministrator $burrowAdministrator)
+    public function __construct(Driver $driver)
     {
         parent::__construct();
 
-        $this->burrowAdministrator = $burrowAdministrator;
+        $this->driver = $driver;
     }
 
     protected function configure()
@@ -60,7 +60,7 @@ class BindCommand extends Command
         $queue = $input->getArgument('queue');
         $routingKey = ($input->getOption('routingKey') !== null) ? $input->getOption('routingKey') : '';
 
-        $this->burrowAdministrator->bindQueue(
+        $this->driver->bindQueue(
             $input->getArgument('exchange'),
             $input->getArgument('queue'),
             $routingKey

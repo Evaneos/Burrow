@@ -1,20 +1,35 @@
 #!/usr/bin/php
 <?php
 
+date_default_timezone_set('Europe/Paris');
+
+use Burrow\Driver\DriverFactory;
+use Burrow\Examples\EchoConsumer;
+use Burrow\Handler\UniversalHandler;
+use Burrow\Worker;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 if (!isset($argv[1])) {
     $io = fopen('php://stderr', 'w+');
-    fwrite($io, "usage: php async-message-worker-v2.php <queue-name:string>\n");
+    fwrite($io, "usage: php async-message-worker.php <queue-name:string>\n");
     die;
 }
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$logger = new \Monolog\Logger('TEST');
-$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://output', 0));
+$logger = new Logger('TEST');
+$logger->pushHandler(new StreamHandler('php://output', 0));
 
-$handler = new \Burrow\RabbitMQ\AmqpAsyncHandler('default', 5672, 'guest', 'guest', $argv[1]);
-$handler->registerConsumer(new \Burrow\Examples\EchoConsumer());
+$driver = DriverFactory::getDriver([
+    'host' => 'default',
+    'port' => '5672',
+    'user' => 'guest',
+    'pwd' => 'guest'
+]);
+$handler = new UniversalHandler($driver, $argv[1]);
+$handler->registerConsumer(new EchoConsumer());
 $handler->setLogger($logger);
 
-$worker = new \Burrow\Worker($handler);
+$worker = new Worker($handler);
 $worker->run();

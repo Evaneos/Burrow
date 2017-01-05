@@ -7,11 +7,11 @@ interface QueuePublisher
     /**
      * Publish a message on the queue
      *
-     * @param string   $data
+     * @param mixed    $data
      * @param string   $routingKey
      * @param string[] $headers
      *
-     * @return null|string|void
+     * @return mixed
      */
     public function publish($data, $routingKey = "", array $headers = []);
 }
