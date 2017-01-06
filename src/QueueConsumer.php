@@ -10,7 +10,7 @@ interface QueueConsumer
      * @param mixed    $message
      * @param string[] $headers
      *
-     * @return null|string|void
+     * @return mixed|void
      */
     public function consume($message, array $headers = []);
 }

@@ -31,11 +31,11 @@ class SerializingConsumer implements QueueConsumer
      * @param mixed    $message
      * @param string[] $headers
      *
-     * @return null|string|void
+     * @return string
      */
     public function consume($message, array $headers = [])
     {
-        $this->serializer->serialize(
+        return $this->serializer->serialize(
             $this->consumer->consume(
                 $this->serializer->deserialize($message),
                 $headers
