@@ -5,7 +5,11 @@ date_default_timezone_set('Europe/Paris');
 
 use Burrow\Driver\PeclAmqpDriver;
 use Burrow\Examples\EchoConsumer;
-use Burrow\Handler\UniversalHandler;
+use Burrow\Daemon\QueueHandlingDaemon;
+use Burrow\Handler\AckHandler;
+use Burrow\Handler\AsyncConsumerHandler;
+use Burrow\Handler\HandlerBuilder;
+use Burrow\Handler\StopOnExceptionHandler;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -27,9 +31,10 @@ $connection->setLogin('guest');
 $connection->setPassword('guest');
 
 $driver = new PeclAmqpDriver($connection);
-$handler = new UniversalHandler($driver, $argv[1]);
-$handler->registerConsumer(new EchoConsumer());
-$handler->setLogger($logger);
+$handlerBuilder = new HandlerBuilder($driver);
+$handler = $handlerBuilder->async(new EchoConsumer())->log($logger)->build();
+$daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
+$daemon->setLogger($logger);
 
-$worker = new Worker($handler);
+$worker = new Worker($daemon);
 $worker->run();

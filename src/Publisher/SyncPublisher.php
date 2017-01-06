@@ -65,7 +65,7 @@ class SyncPublisher implements QueuePublisher
                     return false; // stop the consuming
                 }
 
-                $this->driver->ack($replyTo, $message->getDeliveryTag());
+                $this->driver->ack($message);
                 return true;
             },
             $this->timeout

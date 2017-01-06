@@ -3,6 +3,8 @@
 namespace Burrow\Driver;
 
 use Burrow\Driver;
+use Burrow\Exception\BurrowException;
+use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;
 
@@ -152,7 +154,7 @@ class PeclAmqpDriver implements Driver
      *
      * @return void
      *
-     * @throws \AMQPQueueException
+     * @throws \Exception
      */
     public function consume($queueName, callable $callback, $timeout = 0)
     {
@@ -161,7 +163,7 @@ class PeclAmqpDriver implements Driver
         $queue = $this->getQueue($queueName);
 
         try {
-            $queue->consume(function (\AMQPEnvelope $message) use ($callback) {
+            $queue->consume(function (\AMQPEnvelope $message) use ($callback, $queueName) {
 
                 $burrowMessage = new Message(
                     $message->getBody(),
@@ -171,6 +173,7 @@ class PeclAmqpDriver implements Driver
                     $message->getReplyTo()
                 );
                 $burrowMessage->setDeliveryTag($message->getDeliveryTag());
+                $burrowMessage->setQueue($queueName);
 
                 return $callback($burrowMessage);
             });
@@ -178,38 +181,36 @@ class PeclAmqpDriver implements Driver
             if ($e->getMessage() === 'Consumer timeout exceed') {
                 throw TimeoutException::build($e, $timeout);
             }
-            throw $e;
+            throw ConsumerException::build($e);
         }
 
     }
 
     /**
-     * Acknowledge the reception of the message
+     * Acknowledge the reception of the message.
      *
-     * @param string $queueName
-     * @param string $deliveryTag
+     * @param Message $message
      *
      * @return void
      */
-    public function ack($queueName, $deliveryTag)
+    public function ack(Message $message)
     {
-        $queue = $this->getQueue($queueName);
-        $queue->ack($deliveryTag);
+        $queue = $this->getQueue($message->getQueue());
+        $queue->ack($message->getDeliveryTag());
     }
 
     /**
      * Acknowledge an error during the consumption of the message
      *
-     * @param string $queueName
-     * @param string $deliveryTag
-     * @param bool   $requeue
+     * @param Message $message
+     * @param bool    $requeue
      *
      * @return void
      */
-    public function nack($queueName, $deliveryTag, $requeue = true)
+    public function nack(Message $message, $requeue = true)
     {
-        $queue = $this->getQueue($queueName);
-        $queue->nack($deliveryTag, ($requeue) ? AMQP_REQUEUE : AMQP_NOPARAM);
+        $queue = $this->getQueue($message->getQueue());
+        $queue->nack($message->getDeliveryTag(), ($requeue) ? AMQP_REQUEUE : AMQP_NOPARAM);
     }
 
     /**

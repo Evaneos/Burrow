@@ -2,9 +2,11 @@
 
 namespace Burrow\Exception;
 
-class TimeoutException extends \RuntimeException
+class TimeoutException extends BurrowException
 {
     /**
+     * Build the exception from another timeout exception.
+     *
      * @param \Exception $e
      * @param int        $timeout
      *

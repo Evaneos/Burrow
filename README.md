@@ -53,9 +53,10 @@ $driver = DriverFactory::getDriver([
     'user' => 'guest',
     'pwd' => 'guest'
 ]);
-$handler = new UniversalHandler($driver, 'my_queue');
-$handler->registerConsumer(new EchoConsumer());
-$worker = new Worker($handler);
+$handlerBuilder = new HandlerBuilder($driver);
+$handler = $handlerBuilder->async(new EchoConsumer())->build();
+$daemon = new QueueHandlingDaemon($driver, $handler, 'test');
+$worker = new Worker($daemon);
 $worker->run();
 ```
 
@@ -84,9 +85,11 @@ $driver = DriverFactory::getDriver([
    'user' => 'guest',
    'pwd' => 'guest'
 ]);
-$handler = new UniversalHandler($driver, $argv[1]);
-$handler->registerConsumer(new ReturnConsumer());
-$worker = new Worker($handler);
+
+$handlerBuilder = new HandlerBuilder($driver);
+$handler = $handlerBuilder->sync(new ReturnConsumer())->build();
+$daemon = new QueueHandlingDaemon($driver, $handler, 'test');
+$worker = new Worker($daemon);
 $worker->run();
 ```
 

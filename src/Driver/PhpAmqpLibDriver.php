@@ -3,10 +3,12 @@
 namespace Burrow\Driver;
 
 use Burrow\Driver;
+use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Exception\AMQPExceptionInterface;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
@@ -146,7 +148,7 @@ class PhpAmqpLibDriver implements Driver
      *
      * @return void
      *
-     * @throws \AMQPQueueException
+     * @throws \Exception
      */
     public function consume($queueName, callable $callback, $timeout = 0)
     {
@@ -160,7 +162,7 @@ class PhpAmqpLibDriver implements Driver
             false,
             false,
             false,
-            function (AMQPMessage $message) use ($callback) {
+            function (AMQPMessage $message) use ($callback, $queueName) {
                 $burrowMessage = new Message(
                     $message->getBody(),
                     '', // Impossible to retrieve here
@@ -169,6 +171,7 @@ class PhpAmqpLibDriver implements Driver
                     self::getReplyTo($message)
                 );
                 $burrowMessage->setDeliveryTag($message->delivery_info['delivery_tag']);
+                $burrowMessage->setQueue($queueName);
 
                 $success = $callback($burrowMessage);
                 if ($success === false) {
@@ -182,6 +185,11 @@ class PhpAmqpLibDriver implements Driver
                 $this->getChannel()->wait(null, false, $timeout);
             } catch (AMQPTimeoutException $e) {
                 throw TimeoutException::build($e, $timeout);
+            } catch (\Exception $e) {
+                if ($e instanceof AMQPExceptionInterface) {
+                    throw ConsumerException::build($e);
+                }
+                throw $e;
             }
         }
     }
@@ -189,28 +197,26 @@ class PhpAmqpLibDriver implements Driver
     /**
      * Acknowledge the reception of the message
      *
-     * @param string $queueName
-     * @param string $deliveryTag
+     * @param Message $message
      *
      * @return void
      */
-    public function ack($queueName, $deliveryTag)
+    public function ack(Message $message)
     {
-        $this->getChannel()->basic_ack($deliveryTag);
+        $this->getChannel()->basic_ack($message->getDeliveryTag());
     }
 
     /**
      * Aknowledge an error during the consumption of the message
      *
-     * @param string $queueName
-     * @param string $deliveryTag
+     * @param Message $message
      * @param bool   $requeue
      *
      * @return void
      */
-    public function nack($queueName, $deliveryTag, $requeue = true)
+    public function nack(Message $message, $requeue = true)
     {
-        $this->getChannel()->basic_reject($deliveryTag, $requeue);
+        $this->getChannel()->basic_reject($message->getDeliveryTag(), $requeue);
     }
 
     /**

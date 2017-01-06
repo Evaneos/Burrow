@@ -5,7 +5,11 @@ date_default_timezone_set('Europe/Paris');
 
 use Burrow\Driver\DriverFactory;
 use Burrow\Examples\ReturnConsumer;
-use Burrow\Handler\UniversalHandler;
+use Burrow\Daemon\QueueHandlingDaemon;
+use Burrow\Handler\AckHandler;
+use Burrow\Handler\HandlerBuilder;
+use Burrow\Handler\StopOnExceptionHandler;
+use Burrow\Handler\SyncConsumerHandler;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -27,7 +31,10 @@ $driver = DriverFactory::getDriver([
    'user' => 'guest',
    'pwd' => 'guest'
 ]);
-$handler = new UniversalHandler($driver, $argv[1]);
-$handler->registerConsumer(new ReturnConsumer());
-$worker = new Worker($handler);
+
+$handlerBuilder = new HandlerBuilder($driver);
+$handler = $handlerBuilder->sync(new ReturnConsumer())->log($logger)->build();
+$daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
+$daemon->setLogger($logger);
+$worker = new Worker($daemon);
 $worker->run();

@@ -98,23 +98,21 @@ interface Driver
     /**
      * Acknowledge the reception of the message
      *
-     * @param string $queueName
-     * @param string $deliveryTag
+     * @param Message $message
      *
      * @return void
      */
-    public function ack($queueName, $deliveryTag);
+    public function ack(Message $message);
 
     /**
      * Acknowledge an error during the consumption of the message
      *
-     * @param string $queueName
-     * @param string $deliveryTag
+     * @param Message $message
      * @param bool   $requeue
      *
      * @return void
      */
-    public function nack($queueName, $deliveryTag, $requeue = true);
+    public function nack(Message $message, $requeue = true);
 
     /**
      * Close the connection

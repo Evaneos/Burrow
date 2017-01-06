@@ -16,13 +16,16 @@ class Message
     private $headers;
 
     /** @var string */
-    private $deliveryTag;
-
-    /** @var string */
     private $correlationId;
 
     /** @var string */
     private $replyTo;
+
+    /** @var string */
+    private $queue;
+
+    /** @var string */
+    private $deliveryTag;
 
     /**
      * Message constructor.
@@ -56,6 +59,14 @@ class Message
     }
 
     /**
+     * @param string $queue
+     */
+    public function setQueue($queue)
+    {
+        $this->queue = $queue;
+    }
+
+    /**
      * @return string
      */
     public function getBody()
@@ -82,14 +93,6 @@ class Message
     /**
      * @return string
      */
-    public function getDeliveryTag()
-    {
-        return $this->deliveryTag;
-    }
-
-    /**
-     * @return string
-     */
     public function getCorrelationId()
     {
         return $this->correlationId;
@@ -101,5 +104,21 @@ class Message
     public function getReplyTo()
     {
         return $this->replyTo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDeliveryTag()
+    {
+        return $this->deliveryTag;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueue()
+    {
+        return $this->queue;
     }
 }

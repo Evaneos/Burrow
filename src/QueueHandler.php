@@ -5,11 +5,11 @@ namespace Burrow;
 interface QueueHandler
 {
     /**
-     * Register a consumer for the queue
+     * Handle a message.
      *
-     * @param QueueConsumer $consumer consumer object
+     * @param Message $message
      *
-     * @return void
+     * @return bool
      */
-    public function registerConsumer(QueueConsumer $consumer);
+    public function handle(Message $message);
 }
