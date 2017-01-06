@@ -3,7 +3,6 @@
 namespace Burrow\Driver;
 
 use Burrow\Driver;
-use Burrow\Exception\BurrowException;
 use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;

@@ -3,13 +3,10 @@
 
 date_default_timezone_set('Europe/Paris');
 
+use Burrow\Daemon\QueueHandlingDaemon;
 use Burrow\Driver\PhpAmqpLibDriver;
 use Burrow\Examples\ReturnConsumer;
-use Burrow\Daemon\QueueHandlingDaemon;
-use Burrow\Handler\AckHandler;
 use Burrow\Handler\HandlerBuilder;
-use Burrow\Handler\StopOnExceptionHandler;
-use Burrow\Handler\SyncConsumerHandler;
 use Burrow\Monitor\MemoryMonitor;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;

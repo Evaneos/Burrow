@@ -3,13 +3,10 @@
 
 date_default_timezone_set('Europe/Paris');
 
+use Burrow\Daemon\QueueHandlingDaemon;
 use Burrow\Driver\PeclAmqpDriver;
 use Burrow\Examples\EchoConsumer;
-use Burrow\Daemon\QueueHandlingDaemon;
-use Burrow\Handler\AckHandler;
-use Burrow\Handler\AsyncConsumerHandler;
 use Burrow\Handler\HandlerBuilder;
-use Burrow\Handler\StopOnExceptionHandler;
 use Burrow\Monitor\MemoryMonitor;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;

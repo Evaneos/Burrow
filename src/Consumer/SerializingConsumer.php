@@ -26,7 +26,7 @@ class SerializingConsumer implements QueueConsumer
     }
 
     /**
-     * Consumes a message
+     * Consumes a message.
      *
      * @param mixed    $message
      * @param string[] $headers
