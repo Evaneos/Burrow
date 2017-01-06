@@ -16,18 +16,18 @@ class Worker implements LoggerAwareInterface
     private $sessionId;
 
     /**
-     * @var Daemonizable
+     * @var Daemon
      */
-    private $daemonizable;
+    private $daemon;
     
     /**
      * Constructor
      *
-     * @param Daemonizable $daemonizable
+     * @param Daemon $daemon
      */
-    public function __construct(Daemonizable $daemonizable)
+    public function __construct(Daemon $daemon)
     {
-        $this->daemonizable = $daemonizable;
+        $this->daemon = $daemon;
         $this->logger = new NullLogger();
     }
 
@@ -49,7 +49,7 @@ class Worker implements LoggerAwareInterface
             pcntl_signal(SIGHUP, [$this, 'signalHandler']);
         }
 
-        $this->daemonizable->daemonize();
+        $this->daemon->start();
     }
 
     /**
@@ -62,7 +62,7 @@ class Worker implements LoggerAwareInterface
             case SIGINT:
             case SIGTERM:
                 $this->logger->alert('Worker killed or terminated', ['sessionId', $this->sessionId]);
-                $this->daemonizable->shutdown();
+                $this->daemon->stop();
                 exit(1);
                 break;
             case SIGHUP:

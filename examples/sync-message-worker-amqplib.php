@@ -10,6 +10,7 @@ use Burrow\Handler\AckHandler;
 use Burrow\Handler\HandlerBuilder;
 use Burrow\Handler\StopOnExceptionHandler;
 use Burrow\Handler\SyncConsumerHandler;
+use Burrow\Monitor\MemoryMonitor;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -31,5 +32,7 @@ $handlerBuilder = new HandlerBuilder($driver);
 $handler = $handlerBuilder->sync(new ReturnConsumer())->log($logger)->build();
 $daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
 $daemon->setLogger($logger);
+$daemon->setMonitor(new MemoryMonitor($logger));
+
 $worker = new Worker($daemon);
 $worker->run();

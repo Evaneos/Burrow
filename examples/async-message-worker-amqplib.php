@@ -7,6 +7,7 @@ use Burrow\Daemon\QueueHandlingDaemon;
 use Burrow\Driver\PhpAmqpLibDriver;
 use Burrow\Examples\EchoConsumer;
 use Burrow\Handler\HandlerBuilder;
+use Burrow\Monitor\MemoryMonitor;
 use Burrow\Worker;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -29,6 +30,7 @@ $handlerBuilder = new HandlerBuilder($driver);
 $handler = $handlerBuilder->async(new EchoConsumer())->log($logger)->build();
 $daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
 $daemon->setLogger($logger);
+$daemon->setMonitor(new MemoryMonitor($logger));
 
 $worker = new Worker($daemon);
 $worker->run();

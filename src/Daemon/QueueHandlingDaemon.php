@@ -2,15 +2,17 @@
 
 namespace Burrow\Daemon;
 
-use Burrow\Daemonizable;
+use Burrow\Daemon;
+use Burrow\DaemonMonitor;
 use Burrow\Driver;
 use Burrow\Message;
+use Burrow\Monitor\NullMonitor;
 use Burrow\QueueHandler;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
-class QueueHandlingDaemon implements Daemonizable, LoggerAwareInterface
+class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
 {
     use LoggerAwareTrait;
     
@@ -23,8 +25,8 @@ class QueueHandlingDaemon implements Daemonizable, LoggerAwareInterface
     /** @var QueueHandler */
     private $handler;
 
-    /** @var int */
-    protected $memory = 0;
+    /** @var DaemonMonitor */
+    private $monitor;
 
     /**
      * Handler constructor.
@@ -39,35 +41,36 @@ class QueueHandlingDaemon implements Daemonizable, LoggerAwareInterface
         $this->handler = $handler;
         $this->queueName = $queueName;
 
+        $this->monitor = new NullMonitor();
         $this->logger = new NullLogger();
     }
 
     /**
-     * Run as a daemon
+     * Run the daemon
      *
      * @return void
      */
-    public function daemonize()
+    public function start()
     {
         $this->logger->info('Starting daemon...');
 
         $this->driver->consume(
             $this->queueName,
             function (Message $message) {
-                $this->followMemoryUsage();
+                $this->monitor->monitor($this, $message);
                 return $this->handler->handle($message);
             }
         );
 
-        $this->shutdown();
+        $this->stop();
     }
 
     /**
-     * Stop current connection / daemon
+     * Stop the daemon
      *
      * @return void
      */
-    public function shutdown()
+    public function stop()
     {
         $this->logger->info('Closing daemon...');
 
@@ -75,21 +78,12 @@ class QueueHandlingDaemon implements Daemonizable, LoggerAwareInterface
     }
 
     /**
-     * Follow the memory usage
+     * Set a monitor.
+     *
+     * @param DaemonMonitor $monitor
      */
-    private function followMemoryUsage()
+    public function setMonitor(DaemonMonitor $monitor)
     {
-        $currentMemory = memory_get_usage(true);
-        if ($this->logger && $this->memory > 0 && $currentMemory > $this->memory) {
-            $this->logger
-                ->warning(
-                    'Memory usage increased',
-                    array(
-                        'bytes_increased_by'   => $currentMemory - $this->memory,
-                        'bytes_current_memory' => $currentMemory
-                    )
-                );
-        }
-        $this->memory = $currentMemory;
+        $this->monitor = $monitor;
     }
 }
