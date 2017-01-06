@@ -9,13 +9,21 @@
         }
     ],
 
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:evaneos/daemon"
+        }
+    ],
+
     "require" : {
         "php": ">=5.5.9",
 
         "php-amqplib/php-amqplib": "^2.6",
         "psr/log": "~1.0",
         "symfony/console": "^3.2",
-        "beberlei/assert": "^2.6"
+        "beberlei/assert": "^2.6",
+        "evaneos/daemon": "^1.0"
     },
 
     "require-dev" : {

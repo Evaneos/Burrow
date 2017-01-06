@@ -7,8 +7,8 @@ use Burrow\Daemon\QueueHandlingDaemon;
 use Burrow\Driver\DriverFactory;
 use Burrow\Examples\EchoConsumer;
 use Burrow\Handler\HandlerBuilder;
-use Burrow\Monitor\MemoryMonitor;
-use Burrow\Worker;
+use Evaneos\Daemon\Monitor\MemoryMonitor;
+use Evaneos\Daemon\Worker;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 

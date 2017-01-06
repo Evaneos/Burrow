@@ -2,11 +2,11 @@
 
 namespace Burrow\Daemon;
 
-use Burrow\Daemon;
-use Burrow\DaemonMonitor;
+use Evaneos\Daemon\Daemon;
+use Evaneos\Daemon\DaemonMonitor;
 use Burrow\Driver;
 use Burrow\Message;
-use Burrow\Monitor\NullMonitor;
+use Evaneos\Daemon\Monitor\NullMonitor;
 use Burrow\QueueHandler;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
