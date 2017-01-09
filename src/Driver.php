@@ -88,12 +88,11 @@ interface Driver
      * @param string   $queueName
      * @param callable $callback
      * @param int      $timeout
+     * @param bool     $autoAck
      *
      * @return void
-     *
-     * @throws \AMQPQueueException
      */
-    public function consume($queueName, callable $callback, $timeout = 0);
+    public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true);
 
     /**
      * Acknowledge the reception of the message

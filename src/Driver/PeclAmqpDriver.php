@@ -150,16 +150,16 @@ class PeclAmqpDriver implements Driver
      * @param string   $queueName
      * @param callable $callback
      * @param int      $timeout
+     * @param bool     $autoAck
      *
      * @return void
-     *
-     * @throws \Exception
      */
-    public function consume($queueName, callable $callback, $timeout = 0)
+    public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true)
     {
         $this->connection->setReadTimeout($timeout);
         $this->getChannel()->setPrefetchCount(1);
         $queue = $this->getQueue($queueName);
+        $flags = $autoAck ? AMQP_AUTOACK : AMQP_NOPARAM;
 
         try {
             $queue->consume(function (\AMQPEnvelope $message) use ($callback, $queueName) {
@@ -175,7 +175,7 @@ class PeclAmqpDriver implements Driver
                 $burrowMessage->setQueue($queueName);
 
                 return $callback($burrowMessage);
-            });
+            }, $flags);
         } catch (\AMQPQueueException $e) {
             if ($e->getMessage() === 'Consumer timeout exceed') {
                 throw TimeoutException::build($e, $timeout);

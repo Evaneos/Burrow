@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Burrow\ConsumeOptions;
 use Burrow\Exception\ConsumerException;
 use Burrow\Message;
 use Burrow\QueueHandler;
@@ -48,5 +49,17 @@ class ContinueOnExceptionHandler implements QueueHandler, LoggerAwareInterface
         }
 
         return true;
+    }
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options)
+    {
+        return $this->handler->options($options);
     }
 }

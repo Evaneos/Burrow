@@ -2,6 +2,7 @@
 
 namespace Burrow\Daemon;
 
+use Burrow\ConsumeOptions;
 use Evaneos\Daemon\Daemon;
 use Evaneos\Daemon\DaemonMonitor;
 use Burrow\Driver;
@@ -54,12 +55,16 @@ class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
     {
         $this->logger->info('Starting daemon...');
 
+        $options = $this->handler->options(new ConsumeOptions());
+
         $this->driver->consume(
             $this->queueName,
             function (Message $message) {
                 $this->monitor->monitor($this, $message);
                 return $this->handler->handle($message);
-            }
+            },
+            $options->getTimeout(),
+            $options->isAutoAck()
         );
 
         $this->stop();

@@ -145,12 +145,12 @@ class PhpAmqpLibDriver implements Driver
      * @param string   $queueName
      * @param callable $callback
      * @param int      $timeout
+     * @param bool     $autoAck
      *
      * @return void
-     *
      * @throws \Exception
      */
-    public function consume($queueName, callable $callback, $timeout = 0)
+    public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true)
     {
         $this->stop = false;
 
@@ -159,7 +159,7 @@ class PhpAmqpLibDriver implements Driver
             $queueName,
             '',
             false,
-            false,
+            $autoAck,
             false,
             false,
             function (AMQPMessage $message) use ($callback, $queueName) {

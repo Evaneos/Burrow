@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Burrow\ConsumeOptions;
 use Burrow\Message;
 use Burrow\QueueConsumer;
 use Burrow\QueueHandler;
@@ -40,5 +41,17 @@ class AsyncConsumerHandler implements QueueHandler, LoggerAwareInterface
         $this->consumer->consume($message->getBody(), $message->getHeaders());
 
         return true;
+    }
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options)
+    {
+        return $options;
     }
 }

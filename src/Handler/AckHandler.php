@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Burrow\ConsumeOptions;
 use Burrow\Driver;
 use Burrow\Message;
 use Burrow\QueueHandler;
@@ -50,5 +51,19 @@ class AckHandler implements QueueHandler
             $this->driver->nack($message, $this->requeueOnFailure);
             throw $e;
         }
+    }
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options)
+    {
+        $options->disableAutoAck();
+
+        return $this->handler->options($options);
     }
 }

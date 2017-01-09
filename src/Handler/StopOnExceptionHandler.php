@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Burrow\ConsumeOptions;
 use Burrow\Message;
 use Burrow\QueueHandler;
 use Psr\Log\LoggerAwareInterface;
@@ -43,5 +44,17 @@ class StopOnExceptionHandler implements QueueHandler, LoggerAwareInterface
             $this->logger->error('Received exception', ['exception' => $e]);
             return false;
         }
+    }
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options)
+    {
+        return $this->handler->options($options);
     }
 }

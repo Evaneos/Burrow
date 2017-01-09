@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Burrow\ConsumeOptions;
 use Burrow\Driver;
 use Burrow\Exception\ConsumerException;
 use Burrow\Message;
@@ -48,6 +49,18 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
         $this->handleSyncMessage($message, $returnValue);
 
         return true;
+    }
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options)
+    {
+        return $options;
     }
 
     /**
