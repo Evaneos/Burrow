@@ -20,11 +20,11 @@ class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
     /** @var Driver */
     private $driver;
 
-    /** @var string */
-    private $queueName;
-
     /** @var QueueHandler */
     private $handler;
+
+    /** @var string */
+    private $queueName;
 
     /** @var DaemonMonitor */
     private $monitor;

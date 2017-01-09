@@ -43,6 +43,8 @@ class Message
         Assertion::String($correlationId);
         Assertion::String($replyTo);
 
+        $this->checkHeaders($headers);
+
         $this->body = $body;
         $this->routingKey = $routingKey;
         $this->headers = $headers;
@@ -120,5 +122,24 @@ class Message
     public function getQueue()
     {
         return $this->queue;
+    }
+
+    /**
+     * @param string[] $headers
+     */
+    private function checkHeaders(array $headers)
+    {
+        foreach ($headers as $key => $value) {
+            Assertion::string($key, 'Header key must be a string');
+            Assertion::notBlank($key, 'Header key must be a non empty string');
+            Assertion::notNull($value, 'Value cannot be null');
+
+            if (!is_string($value) &&
+                !is_numeric($value) &&
+                !is_bool($value)
+            ) {
+                throw new \InvalidArgumentException('Value must be a string, a number or a boolean.');
+            }
+        }
     }
 }
