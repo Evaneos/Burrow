@@ -55,11 +55,11 @@ class DriverFactory
      */
     private static function getConnectionFromArray($connection)
     {
-        if (class_exists(\AMQPConnection::class)) {
-            return self::getPeclConnection($connection);
+        if (static::peclExtensionIsAvailable()) {
+            return static::getPeclConnection($connection);
         }
 
-        return self::getPhpAmqpLibConnection($connection);
+        return static::getPhpAmqpLibConnection($connection);
     }
 
     /**
@@ -91,5 +91,13 @@ class DriverFactory
             $connection['user'],
             $connection['pwd']
         );
+    }
+
+    /**
+     * @return bool
+     */
+    protected static function peclExtensionIsAvailable()
+    {
+        return class_exists(\AMQPConnection::class);
     }
 }
