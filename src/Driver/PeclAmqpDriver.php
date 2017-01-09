@@ -7,6 +7,9 @@ use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;
 
+/**
+ * @codeCoverageIgnore
+ */
 class PeclAmqpDriver implements Driver
 {
     const DELIVERY_MODE = 'delivery_mode';

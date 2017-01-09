@@ -44,9 +44,9 @@ class AckHandler implements QueueHandler
     public function handle(Message $message)
     {
         try {
-            $this->handler->handle($message);
+            $result = $this->handler->handle($message);
             $this->driver->ack($message);
-            return true;
+            return $result;
         } catch (\Exception $e) {
             $this->driver->nack($message, $this->requeueOnFailure);
             throw $e;

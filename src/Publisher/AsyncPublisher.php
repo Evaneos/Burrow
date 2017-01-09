@@ -9,10 +9,10 @@ use Burrow\QueuePublisher;
 class AsyncPublisher implements QueuePublisher
 {
     /** @var Driver */
-    protected $driver;
+    private $driver;
 
     /** @var string */
-    protected $exchangeName;
+    private $exchangeName;
 
     /**
      * Constructor

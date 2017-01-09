@@ -13,6 +13,9 @@ use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 
+/**
+ * @codeCoverageIgnore
+ */
 class PhpAmqpLibDriver implements Driver
 {
     const DELIVERY_MODE = 'delivery_mode';

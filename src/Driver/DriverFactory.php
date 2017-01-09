@@ -63,11 +63,13 @@ class DriverFactory
     }
 
     /**
-     * @param $connection
+     * @param string[] $connection
      *
      * @return \AMQPConnection
+     *
+     * @codeCoverageIgnore
      */
-    private static function getPeclConnection($connection)
+    protected static function getPeclConnection(array $connection)
     {
         $amqpConnection = new \AMQPConnection();
         $amqpConnection->setHost($connection['host']);
@@ -79,11 +81,13 @@ class DriverFactory
     }
 
     /**
-     * @param $connection
+     * @param string[] $connection
      *
      * @return AMQPLazyConnection
+     *
+     * @codeCoverageIgnore
      */
-    private static function getPhpAmqpLibConnection($connection)
+    protected static function getPhpAmqpLibConnection(array $connection)
     {
         return new AMQPLazyConnection(
             $connection['host'],
@@ -95,6 +99,8 @@ class DriverFactory
 
     /**
      * @return bool
+     *
+     * @codeCoverageIgnore
      */
     protected static function peclExtensionIsAvailable()
     {
