@@ -31,7 +31,8 @@
         "monolog/monolog": "~1.13",
         "league/event": "^2.1",
         "mockery/mockery": "^0.9.4",
-        "fzaninotto/faker": "^1.6"
+        "fzaninotto/faker": "^1.6",
+        "symfony/process": "^3.2"
     },
 
     "autoload": {
