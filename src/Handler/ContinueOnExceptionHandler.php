@@ -38,17 +38,18 @@ class ContinueOnExceptionHandler implements QueueHandler, LoggerAwareInterface
      */
     public function handle(Message $message)
     {
+        // TODO: Beware to infinite loop!
         try {
             $this->handler->handle($message);
         } catch (\Exception $e) {
-            $this->logger->error('Received exception', ['exception' => $e]);
+            $this->logger->error($e);
 
             if ($e instanceof ConsumerException) {
                 return false;
             }
         }
 
-        return true;
+        return self::CONTINUE_CONSUMING;
     }
 
     /**

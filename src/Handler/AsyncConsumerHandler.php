@@ -40,7 +40,7 @@ class AsyncConsumerHandler implements QueueHandler, LoggerAwareInterface
     {
         $this->consumer->consume($message->getBody(), $message->getHeaders());
 
-        return true;
+        return self::CONTINUE_CONSUMING;
     }
 
     /**

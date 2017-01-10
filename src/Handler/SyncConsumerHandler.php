@@ -48,7 +48,7 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
         $returnValue = $this->consumer->consume($message->getBody(), $message->getHeaders());
         $this->handleSyncMessage($message, $returnValue);
 
-        return true;
+        return self::CONTINUE_CONSUMING;
     }
 
     /**
@@ -72,7 +72,7 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
     private function handleSyncMessage(Message $message, $returnValue)
     {
         if ($message->getCorrelationId() == '' && $message->getReplyTo() == '') {
-            throw new ConsumerException('Invalid sync message.');
+            throw new ConsumerException('Invalid sync message.'); // TODO static constructor?
         }
 
         $this->logger->debug(

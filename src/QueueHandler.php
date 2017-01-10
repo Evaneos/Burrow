@@ -4,6 +4,9 @@ namespace Burrow;
 
 interface QueueHandler
 {
+    const STOP_CONSUMING = false;
+    const CONTINUE_CONSUMING = true;
+
     /**
      * Handle a message.
      *
@@ -20,5 +23,5 @@ interface QueueHandler
      *
      * @return ConsumeOptions
      */
-    public function options(ConsumeOptions $options);
+    public function options(ConsumeOptions $options); // TODO delete and port to somewhere else?
 }

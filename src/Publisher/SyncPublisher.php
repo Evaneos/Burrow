@@ -4,6 +4,7 @@ namespace Burrow\Publisher;
 
 use Burrow\Driver;
 use Burrow\Message;
+use Burrow\QueueHandler;
 use Burrow\QueuePublisher;
 
 class SyncPublisher implements QueuePublisher
@@ -13,12 +14,6 @@ class SyncPublisher implements QueuePublisher
 
     /** @var string */
     private $exchangeName;
-
-    /** @var mixed */
-    private $response;
-
-    /** @var string */
-    private $correlationId;
 
     /** @var int */
     private $timeout;
@@ -48,28 +43,27 @@ class SyncPublisher implements QueuePublisher
      */
     public function publish($data, $routingKey = '', array $headers = [])
     {
-        $this->response = null;
-        $this->correlationId = uniqid();
+        $response = null;
+        $correlationId = uniqid();
         $replyTo = $this->driver->declareSimpleQueue('', Driver::QUEUE_EXCLUSIVE);
 
         $this->driver->publish(
             $this->exchangeName,
-            new Message($data, $routingKey, $headers, $this->correlationId, $replyTo)
+            new Message($data, $routingKey, $headers, $correlationId, $replyTo)
         );
 
         $this->driver->consume(
             $replyTo,
-            function (Message $message) use ($replyTo) {
-                if ($message->getCorrelationId() == $this->correlationId) {
-                    $this->response = $message->getBody();
-                    return false; // stop the consuming
+            function (Message $message) use ($replyTo, $correlationId, &$response) {
+                if ($message->getCorrelationId() == $correlationId) {
+                    $response = $message->getBody();
+                    return QueueHandler::STOP_CONSUMING;
                 }
-
-                return true;
+                return QueueHandler::CONTINUE_CONSUMING;
             },
             $this->timeout
         );
 
-        return $this->response;
+        return $response;
     }
 }

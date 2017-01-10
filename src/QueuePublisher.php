@@ -13,5 +13,5 @@ interface QueuePublisher
      *
      * @return mixed
      */
-    public function publish($data, $routingKey = "", array $headers = []);
+    public function publish($data, $routingKey = '', array $headers = []);
 }

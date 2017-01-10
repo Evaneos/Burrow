@@ -39,10 +39,10 @@ class StopOnExceptionHandler implements QueueHandler, LoggerAwareInterface
     {
         try {
             $this->handler->handle($message);
-            return true;
+            return self::CONTINUE_CONSUMING;
         } catch (\Exception $e) {
-            $this->logger->error('Received exception', ['exception' => $e]);
-            return false;
+            $this->logger->error($e);
+            return self::STOP_CONSUMING;
         }
     }
 
