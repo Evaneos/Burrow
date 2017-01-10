@@ -53,7 +53,7 @@ class HandlerBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(\InvalidArgumentException::class);
 
-        $this->serviceUnderTest->build();
+        $this->serviceUnderTest->build($this->consumer);
     }
 
     /**
@@ -62,10 +62,10 @@ class HandlerBuilderTest extends \PHPUnit_Framework_TestCase
     public function itShouldBuildAsyncErrorStoppingAndNotRequeuingHandler()
     {
         $handler = $this->serviceUnderTest
-            ->async($this->consumer)
+            ->async()
             ->doNotRequeueOnFailure()
             ->log($this->logger)
-            ->build();
+            ->build($this->consumer);
 
         $this->assertInstanceOf(StopOnExceptionHandler::class, $handler);
     }
@@ -76,10 +76,10 @@ class HandlerBuilderTest extends \PHPUnit_Framework_TestCase
     public function itShouldBuildSyncErrorContinuing()
     {
         $handler = $this->serviceUnderTest
-            ->sync($this->consumer)
+            ->sync()
             ->continueOnFailure()
             ->log($this->logger)
-            ->build();
+            ->build($this->consumer);
 
         $this->assertInstanceOf(ContinueOnExceptionHandler::class, $handler);
     }

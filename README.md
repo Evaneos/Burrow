@@ -54,7 +54,7 @@ $driver = DriverFactory::getDriver([
     'pwd' => 'guest'
 ]);
 $handlerBuilder = new HandlerBuilder($driver);
-$handler = $handlerBuilder->async(new EchoConsumer())->build();
+$handler = $handlerBuilder->async()->build(new EchoConsumer());
 $daemon = new QueueHandlingDaemon($driver, $handler, 'test');
 $worker = new Worker($daemon);
 $worker->run();
@@ -87,7 +87,7 @@ $driver = DriverFactory::getDriver([
 ]);
 
 $handlerBuilder = new HandlerBuilder($driver);
-$handler = $handlerBuilder->sync(new ReturnConsumer())->build();
+$handler = $handlerBuilder->sync()->build(new ReturnConsumer());
 $daemon = new QueueHandlingDaemon($driver, $handler, 'test');
 $worker = new Worker($daemon);
 $worker->run();

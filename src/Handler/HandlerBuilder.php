@@ -5,6 +5,7 @@ namespace Burrow\Handler;
 use Assert\Assertion;
 use Burrow\Driver;
 use Burrow\QueueConsumer;
+use Burrow\QueueHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -12,9 +13,6 @@ class HandlerBuilder
 {
     /** @var Driver */
     private $driver;
-
-    /** @var QueueConsumer */
-    private $consumer;
 
     /** @var bool */
     private $sync;
@@ -48,14 +46,11 @@ class HandlerBuilder
     /**
      * Build a sync Handler.
      *
-     * @param QueueConsumer $consumer
-     *
      * @return $this
      */
-    public function sync(QueueConsumer $consumer)
+    public function sync()
     {
         $this->sync = true;
-        $this->consumer = $consumer;
 
         return $this;
     }
@@ -63,14 +58,11 @@ class HandlerBuilder
     /**
      * Build an async Handler.
      *
-     * @param QueueConsumer $consumer
-     *
      * @return $this
      */
-    public function async(QueueConsumer $consumer)
+    public function async()
     {
         $this->sync = false;
-        $this->consumer = $consumer;
 
         return $this;
     }
@@ -115,15 +107,18 @@ class HandlerBuilder
 
     /**
      * Build the Handler.
+     *
+     * @param QueueConsumer $consumer
+     *
+     * @return QueueHandler
      */
-    public function build()
+    public function build(QueueConsumer $consumer)
     {
-        Assertion::notNull($this->consumer);
         Assertion::notNull($this->sync);
 
         $syncAsync = ($this->sync) ?
-            new SyncConsumerHandler($this->consumer, $this->driver) :
-            new AsyncConsumerHandler($this->consumer);
+            new SyncConsumerHandler($consumer, $this->driver) :
+            new AsyncConsumerHandler($consumer);
 
         $ackHandler = new AckHandler($syncAsync, $this->driver, $this->requeueOnFailure);
 

@@ -30,7 +30,7 @@ $connection->setPassword('guest');
 
 $driver = new PeclAmqpDriver($connection);
 $handlerBuilder = new HandlerBuilder($driver);
-$handler = $handlerBuilder->sync(new ReturnConsumer())->log($logger)->build();
+$handler = $handlerBuilder->sync()->log($logger)->build(new ReturnConsumer());
 $daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
 $daemon->setLogger($logger);
 $daemon->setMonitor(new MemoryMonitor($logger));

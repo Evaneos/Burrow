@@ -26,7 +26,7 @@ $logger->pushHandler(new StreamHandler('php://output', 0));
 
 $driver = new PhpAmqpLibDriver(new AMQPLazyConnection('default', 5672, 'guest', 'guest'));
 $handlerBuilder = new HandlerBuilder($driver);
-$handler = $handlerBuilder->sync(new ReturnConsumer())->log($logger)->build();
+$handler = $handlerBuilder->sync()->log($logger)->build(new ReturnConsumer());
 $daemon = new QueueHandlingDaemon($driver, $handler, $argv[1]);
 $daemon->setLogger($logger);
 $daemon->setMonitor(new MemoryMonitor($logger));
