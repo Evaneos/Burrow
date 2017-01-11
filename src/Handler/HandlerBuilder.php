@@ -114,7 +114,7 @@ class HandlerBuilder
      */
     public function build(QueueConsumer $consumer)
     {
-        Assertion::notNull($this->sync);
+        Assertion::notNull($this->sync, 'You must specify if the handler must be sync or async');
 
         $syncAsync = ($this->sync) ?
             new SyncConsumerHandler($consumer, $this->driver) :

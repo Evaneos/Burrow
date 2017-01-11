@@ -72,7 +72,7 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
     private function handleSyncMessage(Message $message, $returnValue)
     {
         if ($message->getCorrelationId() == '' && $message->getReplyTo() == '') {
-            throw new ConsumerException('Invalid sync message.'); // TODO static constructor?
+            throw ConsumerException::invalidSyncMessage();
         }
 
         $this->logger->debug(

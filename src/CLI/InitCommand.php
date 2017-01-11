@@ -61,10 +61,10 @@ class InitCommand extends Command
     protected function getConfiguration(InputInterface $input)
     {
         $file = $input->getArgument('file');
-        Assertion::file($file);
+        Assertion::file($file, 'You must provide a valid file name');
 
         $configurationString = file_get_contents($file);
-        Assertion::isJsonString($configurationString);
+        Assertion::isJsonString($configurationString, 'The file must be a valid JSON');
 
         $configuration = @json_decode($configurationString, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -90,10 +90,10 @@ class InitCommand extends Command
      */
     private static function checkQueuesConfiguration(array $configuration)
     {
-        Assertion::keyIsset($configuration, 'queues');
+        Assertion::keyIsset($configuration, 'queues', 'You must provide a `queues` configuration');
 
         $queues = $configuration['queues'];
-        Assertion::isArray($queues);
+        Assertion::isArray($queues, 'The `queues` configuration must be an array');
     }
 
     /**
@@ -101,20 +101,25 @@ class InitCommand extends Command
      */
     private static function checkExchangesConfiguration(array $configuration)
     {
-        Assertion::keyIsset($configuration, 'exchanges');
+        Assertion::keyIsset($configuration, 'exchanges', 'You must provide an `exchanges` configuration');
 
         $exchanges = $configuration['exchanges'];
-        Assertion::isArray($exchanges);
+        Assertion::isArray($exchanges, 'The `exchanges` configuration must be an array');
 
         foreach ($exchanges as $exchangeInformation) {
-            Assertion::keyIsset($exchangeInformation, 'name');
-            Assertion::keyIsset($exchangeInformation, 'type');
+            Assertion::keyIsset($exchangeInformation, 'name', 'You must provide a name for the exchange');
+            Assertion::keyIsset($exchangeInformation, 'type', 'You must provide a type for the exchange');
 
             $queues = $exchangeInformation['queues'];
-            Assertion::isArray($queues);
+            Assertion::keyIsset(
+                $exchangeInformation,
+                'queues',
+                'You must provide a `queues` configuration for the exchange'
+            );
+            Assertion::isArray($queues, 'The `queues` configuration must be an array');
 
             foreach ($queues as $queueInformation) {
-                Assertion::keyIsset($queueInformation, 'name');
+                Assertion::keyIsset($queueInformation, 'name', 'You must provide a name for the queue');
             }
         }
     }

@@ -6,6 +6,7 @@ use Burrow\Driver;
 use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;
+use Burrow\QueueHandler;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Exception\AMQPExceptionInterface;
@@ -177,7 +178,7 @@ class PhpAmqpLibDriver implements Driver
                 $burrowMessage->setQueue($queueName);
 
                 $success = $callback($burrowMessage);
-                if ($success === false) {
+                if ($success === QueueHandler::STOP_CONSUMING) {
                     $this->stop = true;
                 }
             }

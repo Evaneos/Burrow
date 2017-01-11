@@ -23,5 +23,5 @@ interface QueueHandler
      *
      * @return ConsumeOptions
      */
-    public function options(ConsumeOptions $options); // TODO delete and port to somewhere else?
+    public function options(ConsumeOptions $options);
 }

@@ -15,4 +15,12 @@ class ConsumerException extends BurrowException
     {
         return new self($e->getMessage(), $e->getCode(), $e);
     }
+
+    /**
+     * @return ConsumerException
+     */
+    public static function invalidSyncMessage()
+    {
+        return new self('Invalid sync message.');
+    }
 }

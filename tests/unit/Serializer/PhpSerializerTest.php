@@ -51,10 +51,30 @@ class PhpSerializerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function itShouldUnserialize()
+    public function itShouldDeserialize()
     {
         $deserialized = $this->serviceUnderTest->deserialize($this->serializedMessage);
 
         $this->assertEquals($this->message, $deserialized);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldDeserializeNull()
+    {
+        $deserialized = $this->serviceUnderTest->deserialize(null);
+
+        $this->assertNull($deserialized);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotDeserializeOtherThanString()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+
+        $this->serviceUnderTest->deserialize([]);
     }
 }

@@ -67,7 +67,8 @@ class DeclareExchangeCommand extends Command
                 Driver::EXCHANGE_TYPE_TOPIC,
                 Driver::EXCHANGE_TYPE_FANOUT,
                 Driver::EXCHANGE_TYPE_HEADERS
-            ]
+            ],
+            'The type of the exchange must be one of the four valid values.'
         );
 
         $this->driver->declareExchange($name, $type);

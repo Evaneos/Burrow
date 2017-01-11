@@ -38,10 +38,10 @@ class Message
      */
     public function __construct($body, $routingKey = '', array $headers = [], $correlationId = '', $replyTo = '')
     {
-        Assertion::string($body);
-        Assertion::String($routingKey);
-        Assertion::String($correlationId);
-        Assertion::String($replyTo);
+        Assertion::string($body, 'Message body must be a string');
+        Assertion::String($routingKey, 'Routing key must be a string');
+        Assertion::String($correlationId, 'Correlation ID must be a string');
+        Assertion::String($replyTo, 'Reply To must be a string');
 
         $this->checkHeaders($headers);
 

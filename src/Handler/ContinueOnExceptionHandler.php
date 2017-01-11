@@ -38,7 +38,7 @@ class ContinueOnExceptionHandler implements QueueHandler, LoggerAwareInterface
      */
     public function handle(Message $message)
     {
-        // TODO: Beware to infinite loop!
+        // Beware of infinite loop!
         try {
             $this->handler->handle($message);
         } catch (\Exception $e) {

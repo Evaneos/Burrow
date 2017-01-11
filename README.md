@@ -60,7 +60,8 @@ $worker = new Worker($daemon);
 $worker->run();
 ```
 
-In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the worker terminal.
+In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the
+worker terminal.
 
 Synchronous management
 -----------------------
@@ -93,9 +94,20 @@ $worker = new Worker($daemon);
 $worker->run();
 ```
 
-In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the publisher terminal.
+In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the
+publisher terminal.
 
 Examples
 --------
 
 All these examples are also available in the `example` directory.
+
+
+Handlers
+--------
+
+You can now use handlers to modify the consumption behaviour. For retro-compatibility reasons, a
+`ContinueOnFailureHandler` has been created to reproduce the previous default behaviour. Please, do not use it anymore
+ as it is quite dangerous to allow the worker to continue when receiving an error.
+ 
+ To ease the use of the handlers, please build the handler stack using `HandlerBuilder`. 

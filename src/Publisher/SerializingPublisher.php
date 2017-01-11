@@ -44,11 +44,6 @@ class SerializingPublisher implements QueuePublisher
             $headers
         );
 
-        // TODO pass to serializer?
-        if ($returnValue === null) {
-            return null;
-        }
-
         return $this->serializer->deserialize($returnValue);
     }
 }
