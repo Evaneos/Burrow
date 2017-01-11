@@ -3,27 +3,30 @@
 namespace Burrow\CLI;
 
 use Assert\Assertion;
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 class InitCommand extends Command
 {
-    /** @var AmqpAdministrator */
-    private $burrowAdministrator;
+    /** @var Driver */
+    private $driver;
 
     /**
      * DeclareQueueCommand constructor.
      *
-     * @param AmqpAdministrator $burrowAdministrator
+     * @param Driver $driver
      */
-    public function __construct(AmqpAdministrator $burrowAdministrator)
+    public function __construct(Driver $driver)
     {
         parent::__construct();
 
-        $this->burrowAdministrator = $burrowAdministrator;
+        $this->driver = $driver;
     }
 
     protected function configure()
@@ -58,10 +61,10 @@ class InitCommand extends Command
     protected function getConfiguration(InputInterface $input)
     {
         $file = $input->getArgument('file');
-        Assertion::file($file);
+        Assertion::file($file, 'You must provide a valid file name');
 
         $configurationString = file_get_contents($file);
-        Assertion::isJsonString($configurationString);
+        Assertion::isJsonString($configurationString, 'The file must be a valid JSON');
 
         $configuration = @json_decode($configurationString, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -87,10 +90,10 @@ class InitCommand extends Command
      */
     private static function checkQueuesConfiguration(array $configuration)
     {
-        Assertion::keyIsset($configuration, 'queues');
+        Assertion::keyIsset($configuration, 'queues', 'You must provide a `queues` configuration');
 
         $queues = $configuration['queues'];
-        Assertion::isArray($queues);
+        Assertion::isArray($queues, 'The `queues` configuration must be an array');
     }
 
     /**
@@ -98,20 +101,25 @@ class InitCommand extends Command
      */
     private static function checkExchangesConfiguration(array $configuration)
     {
-        Assertion::keyIsset($configuration, 'exchanges');
+        Assertion::keyIsset($configuration, 'exchanges', 'You must provide an `exchanges` configuration');
 
         $exchanges = $configuration['exchanges'];
-        Assertion::isArray($exchanges);
+        Assertion::isArray($exchanges, 'The `exchanges` configuration must be an array');
 
         foreach ($exchanges as $exchangeInformation) {
-            Assertion::keyIsset($exchangeInformation, 'name');
-            Assertion::keyIsset($exchangeInformation, 'type');
+            Assertion::keyIsset($exchangeInformation, 'name', 'You must provide a name for the exchange');
+            Assertion::keyIsset($exchangeInformation, 'type', 'You must provide a type for the exchange');
 
             $queues = $exchangeInformation['queues'];
-            Assertion::isArray($queues);
+            Assertion::keyIsset(
+                $exchangeInformation,
+                'queues',
+                'You must provide a `queues` configuration for the exchange'
+            );
+            Assertion::isArray($queues, 'The `queues` configuration must be an array');
 
             foreach ($queues as $queueInformation) {
-                Assertion::keyIsset($queueInformation, 'name');
+                Assertion::keyIsset($queueInformation, 'name', 'You must provide a name for the queue');
             }
         }
     }
@@ -124,7 +132,7 @@ class InitCommand extends Command
     {
         $queues = $configuration['queues'];
         foreach ($queues as $queue) {
-            $this->burrowAdministrator->declareSimpleQueue($queue);
+            $this->driver->declareSimpleQueue($queue);
             $output->writeln(sprintf('<info>Declare queue <comment>%s</comment></info>', $queue));
         }
     }
@@ -140,7 +148,7 @@ class InitCommand extends Command
             $exchangeName = $exchangeInformation['name'];
             $exchangeType = $exchangeInformation['type'];
 
-            $this->burrowAdministrator->declareExchange($exchangeName, $exchangeType);
+            $this->driver->declareExchange($exchangeName, $exchangeType);
 
             $output->writeln(
                 sprintf(
@@ -155,16 +163,15 @@ class InitCommand extends Command
                 $queueName = $queueInformation['name'];
                 $routingKey = isset($queueInformation['routingKey']) ? $queueInformation['routingKey'] : '';
 
-                $this->burrowAdministrator->declareAndBindQueue($exchangeName, $queueName, $routingKey);
+                $this->driver->declareAndBindQueue($exchangeName, $queueName, $routingKey);
 
-                $output->writeln(
-                    sprintf(
-                        '<info>Bind exchange <comment>%s</comment> to queue <comment>%s</comment> [<comment>%s</comment>]</info>',
-                        $exchangeName,
-                        $queueName,
-                        $routingKey
-                    )
-                );
+                $output->writeln(sprintf(
+                    '<info>Bind exchange <comment>%s</comment> to queue ' .
+                    '<comment>%s</comment> [<comment>%s</comment>]</info>',
+                    $exchangeName,
+                    $queueName,
+                    $routingKey
+                ));
             }
         }
     }

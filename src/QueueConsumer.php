@@ -1,4 +1,5 @@
 <?php
+
 namespace Burrow;
 
 interface QueueConsumer
@@ -6,8 +7,10 @@ interface QueueConsumer
     /**
      * Consumes a message
      *
-     * @param  string $message
-     * @return string|null|void
+     * @param mixed    $message
+     * @param string[] $headers
+     *
+     * @return mixed|void
      */
-    public function consume($message);
+    public function consume($message, array $headers = []);
 }

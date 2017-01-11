@@ -7,27 +7,21 @@ use Burrow\CLI\DeclareQueueCommand;
 use Burrow\CLI\DeleteExchangeCommand;
 use Burrow\CLI\DeleteQueueCommand;
 use Burrow\CLI\InitCommand;
-use Burrow\RabbitMQ\AmqpAdministrator;
+use Burrow\Driver\DriverFactory;
 use Symfony\Component\Console\Application;
 
 autoload();
 $config = getConfig();
-
-$administrator = new AmqpAdministrator(
-    $config['host'],
-    $config['port'],
-    $config['user'],
-    $config['pwd']
-);
+$driver = DriverFactory::getDriver($config);
 
 $application = new Application('BURROW', '1.0.0');
 
-$application->add(new DeclareQueueCommand($administrator));
-$application->add(new DeclareExchangeCommand($administrator));
-$application->add(new BindCommand($administrator));
-$application->add(new InitCommand($administrator));
-$application->add(new DeleteQueueCommand($administrator));
-$application->add(new DeleteExchangeCommand($administrator));
+$application->add(new DeclareQueueCommand($driver));
+$application->add(new DeclareExchangeCommand($driver));
+$application->add(new BindCommand($driver));
+$application->add(new InitCommand($driver));
+$application->add(new DeleteQueueCommand($driver));
+$application->add(new DeleteExchangeCommand($driver));
 
 $application->run();
 
@@ -47,7 +41,7 @@ function autoload()
  */
 function getConfig()
 {
-    $directories = array(getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config');
+    $directories = [getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config'];
 
     $configFile = null;
     foreach ($directories as $directory) {
@@ -58,12 +52,12 @@ function getConfig()
         }
     }
 
-    if ( $configFile === null || ! file_exists($configFile)) {
+    if ($configFile === null || ! file_exists($configFile)) {
         showHelp();
         exit(1);
     }
 
-    if ( ! is_readable($configFile)) {
+    if (! is_readable($configFile)) {
         showReadErrorMessage($configFile);
         exit(1);
     }

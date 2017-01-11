@@ -1,14 +1,27 @@
 <?php
+
 namespace Burrow;
 
 interface QueueHandler
 {
+    const STOP_CONSUMING = false;
+    const CONTINUE_CONSUMING = true;
 
     /**
-     * Register a consumer for the queue
+     * Handle a message.
      *
-     * @param  QueueConsumer $consumer consumer object
-     * @return void
+     * @param Message $message
+     *
+     * @return bool
      */
-    public function registerConsumer(QueueConsumer $consumer);
+    public function handle(Message $message);
+
+    /**
+     * Modify and return the options for consumption.
+     *
+     * @param ConsumeOptions $options
+     *
+     * @return ConsumeOptions
+     */
+    public function options(ConsumeOptions $options);
 }
