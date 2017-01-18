@@ -172,18 +172,18 @@ class InitCommand extends Command
 
         $queues = $exchangeInformation['queues'];
         foreach ($queues as $queueInformation) {
-            $this->bindQueue($output, $queueInformation, $exchangeName);
+            $this->bindQueue($exchangeName, $queueInformation, $output);
         }
     }
 
     /**
      * @param string          $exchangeName
-     * @param string          $queueInformation
+     * @param array           $queueInformation
      * @param OutputInterface $output
      */
     private function bindQueue(
         $exchangeName,
-        $queueInformation,
+        array $queueInformation,
         OutputInterface $output
     ) {
         $queueName = $queueInformation['name'];
