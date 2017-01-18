@@ -37,7 +37,8 @@
 
     "autoload-dev": {
         "psr-4": {
-            "Burrow\\Test\\": "tests/unit/"
+            "Burrow\\Test\\": "tests/unit/",
+            "Burrow\\Test\\Validation\\": "tests/validation/"
         }
     },
 

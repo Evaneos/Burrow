@@ -1,12 +1,12 @@
 <?php
 
-namespace Burrow\Test\CLI;
+namespace Burrow\Test\Validation\CLI;
 
 use Faker\Factory;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
-class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
+class DeclareExchangeCommandTest extends \PHPUnit_Framework_TestCase
 {
     /** @var string */
     private $exchangeName;
@@ -23,8 +23,6 @@ class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->exchangeName = $faker->word;
         $this->workingDirectory = dirname(dirname(dirname(__DIR__)));
-
-        $this->getBurrowProcess('admin:declare:exchange', $this->exchangeName)->run();
     }
 
     /**
@@ -41,11 +39,11 @@ class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function itShouldDeclareAnExchange()
     {
-        $process = $this->getBurrowProcess('admin:delete:exchange', $this->exchangeName);
+        $process = $this->getBurrowProcess('admin:declare:exchange', $this->exchangeName);
         $process->run();
 
         $this->assertTrue($process->isSuccessful());
-        // TODO assert exchange has been deleted
+        // TODO assert exchange exists
     }
 
     /**
@@ -53,11 +51,11 @@ class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function itShouldFailDeclaringExchangeIfNotProvidingAnExchangeName()
     {
-        $process = $this->getBurrowProcess('admin:delete:exchange');
+        $process = $this->getBurrowProcess('admin:declare:exchange');
         $process->run();
 
         $this->assertFalse($process->isSuccessful());
-        // TODO assert exchange still exists
+        // TODO assert exchange still doesn't exist
     }
 
     /**

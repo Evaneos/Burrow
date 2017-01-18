@@ -19,3 +19,4 @@ install:
 
 script:
   - vendor/bin/phpunit
+  - vendor/bin/phpunit --config=phpunit-validation.xml

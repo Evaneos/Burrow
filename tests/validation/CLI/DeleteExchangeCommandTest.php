@@ -1,15 +1,15 @@
 <?php
 
-namespace Burrow\Test\CLI;
+namespace Burrow\Test\Validation\CLI;
 
 use Faker\Factory;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
-class DeleteQueueCommandTest extends \PHPUnit_Framework_TestCase
+class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
 {
     /** @var string */
-    private $queueName;
+    private $exchangeName;
 
     /** @var string */
     private $workingDirectory;
@@ -21,10 +21,10 @@ class DeleteQueueCommandTest extends \PHPUnit_Framework_TestCase
     {
         $faker = Factory::create();
 
-        $this->queueName = $faker->word;
+        $this->exchangeName = $faker->word;
         $this->workingDirectory = dirname(dirname(dirname(__DIR__)));
 
-        $this->getBurrowProcess('admin:declare:queue', $this->queueName)->run();
+        $this->getBurrowProcess('admin:declare:exchange', $this->exchangeName)->run();
     }
 
     /**
@@ -33,44 +33,44 @@ class DeleteQueueCommandTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         \Mockery::close();
-        $this->getBurrowProcess('admin:delete:queue', $this->queueName)->run();
+        $this->getBurrowProcess('admin:delete:exchange', $this->exchangeName)->run();
     }
 
     /**
      * @test
      */
-    public function itShouldDeclareAQueue()
+    public function itShouldDeclareAnExchange()
     {
-        $process = $this->getBurrowProcess('admin:delete:queue', $this->queueName);
+        $process = $this->getBurrowProcess('admin:delete:exchange', $this->exchangeName);
         $process->run();
 
         $this->assertTrue($process->isSuccessful());
-        // TODO assert queue has been deleted
+        // TODO assert exchange has been deleted
     }
 
     /**
      * @test
      */
-    public function itShouldFailDeclaringQueueIfNotProvidingAQueueName()
+    public function itShouldFailDeclaringExchangeIfNotProvidingAnExchangeName()
     {
-        $process = $this->getBurrowProcess('admin:delete:queue');
+        $process = $this->getBurrowProcess('admin:delete:exchange');
         $process->run();
 
         $this->assertFalse($process->isSuccessful());
-        // TODO assert queue still exists
+        // TODO assert exchange still exists
     }
 
     /**
      * @param string $command
-     * @param string $queue
+     * @param string $exchange
      *
      * @return Process
      */
-    protected function getBurrowProcess($command, $queue = null)
+    protected function getBurrowProcess($command, $exchange = null)
     {
         $params = ['php', 'bin/burrow', $command];
-        if ($queue != null) {
-            $params[] = $queue;
+        if ($exchange != null) {
+            $params[] = $exchange;
         }
         $builder = new ProcessBuilder($params);
         $process = $builder->getProcess();

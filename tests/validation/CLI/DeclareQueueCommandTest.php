@@ -1,6 +1,6 @@
 <?php
 
-namespace Burrow\Test\CLI;
+namespace Burrow\Test\Validation\CLI;
 
 use Faker\Factory;
 use Symfony\Component\Process\Process;
