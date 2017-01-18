@@ -185,7 +185,6 @@ class PeclAmqpDriver implements Driver
             }
             throw ConsumerException::build($e);
         }
-
     }
 
     /**
@@ -285,7 +284,6 @@ class PeclAmqpDriver implements Driver
 
         if ($message->getCorrelationId() !== null) {
             $properties[self::CORRELATION_ID] = $message->getCorrelationId();
-
         }
 
         if ($message->getReplyTo() !== null) {

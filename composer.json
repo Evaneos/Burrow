@@ -25,7 +25,8 @@
         "league/event": "^2.1",
         "mockery/mockery": "^0.9.4",
         "fzaninotto/faker": "^1.6",
-        "symfony/process": "^3.2"
+        "symfony/process": "^3.2",
+        "squizlabs/php_codesniffer": "~2.0"
     },
 
     "autoload": {

@@ -1,6 +1,11 @@
 Burrow
 ======
 
+[![Build Status](https://scrutinizer-ci.com/g/Evaneos/Burrow/badges/build.png?b=master)](https://scrutinizer-ci.com/g/Evaneos/Burrow/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Evaneos/Burrow/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Evaneos/Burrow/?branch=master)
+[![Packagist Version](https://img.shields.io/packagist/v/evaneos/burrow.svg?style=flat-square)](https://packagist.org/packages/evaneos/burrow)
+[![Code Coverage](https://scrutinizer-ci.com/g/Evaneos/Burrow/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Evaneos/Burrow/?branch=master)
+
 Evaneos AMQP library able to use both [php-amqplib](https://github.com/php-amqplib/php-amqplib)
 and [pecl amqp C librairy](https://github.com/pdezwart/php-amqp)
 

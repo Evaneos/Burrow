@@ -275,7 +275,6 @@ class PhpAmqpLibDriver implements Driver
 
         if ($message->getCorrelationId() !== null) {
             $properties[self::CORRELATION_ID] = $message->getCorrelationId();
-
         }
 
         if ($message->getReplyTo() !== null) {
