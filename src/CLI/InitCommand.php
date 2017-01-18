@@ -94,6 +94,10 @@ class InitCommand extends Command
 
         $queues = $configuration['queues'];
         Assertion::isArray($queues, 'The `queues` configuration must be an array');
+
+        foreach ($queues as $queueInformation) {
+            Assertion::keyIsset($queueInformation, 'name', 'You must provide a name for the queue');
+        }
     }
 
     /**
@@ -107,28 +111,26 @@ class InitCommand extends Command
         Assertion::isArray($exchanges, 'The `exchanges` configuration must be an array');
 
         foreach ($exchanges as $exchangeInformation) {
-            Assertion::keyIsset($exchangeInformation, 'name', 'You must provide a name for the exchange');
-            Assertion::keyIsset($exchangeInformation, 'type', 'You must provide a type for the exchange');
-
-            $queues = $exchangeInformation['queues'];
-            Assertion::keyIsset(
-                $exchangeInformation,
-                'queues',
-                'You must provide a `queues` configuration for the exchange'
-            );
-            Assertion::isArray($queues, 'The `queues` configuration must be an array');
-
-            foreach ($queues as $queueInformation) {
-                Assertion::keyIsset($queueInformation, 'name', 'You must provide a name for the queue');
-            }
+            self::checkExchangeConfiguration($exchangeInformation);
         }
+    }
+
+    /**
+     * @param array $exchangeInformation
+     */
+    private static function checkExchangeConfiguration(array $exchangeInformation)
+    {
+        Assertion::keyIsset($exchangeInformation, 'name', 'You must provide a name for the exchange');
+        Assertion::keyIsset($exchangeInformation, 'type', 'You must provide a type for the exchange');
+
+        self::checkQueuesConfiguration($exchangeInformation);
     }
 
     /**
      * @param array           $configuration
      * @param OutputInterface $output
      */
-    protected function declareQueues($configuration, OutputInterface $output)
+    private function declareQueues($configuration, OutputInterface $output)
     {
         $queues = $configuration['queues'];
         foreach ($queues as $queue) {
@@ -141,38 +143,60 @@ class InitCommand extends Command
      * @param array           $configuration
      * @param OutputInterface $output
      */
-    protected function bind($configuration, OutputInterface $output)
+    private function bind(array $configuration, OutputInterface $output)
     {
         $exchanges = $configuration['exchanges'];
         foreach ($exchanges as $exchangeInformation) {
-            $exchangeName = $exchangeInformation['name'];
-            $exchangeType = $exchangeInformation['type'];
-
-            $this->driver->declareExchange($exchangeName, $exchangeType);
-
-            $output->writeln(
-                sprintf(
-                    '<info>Declare exchange <comment>%s</comment> [<comment>%s</comment>]</info>',
-                    $exchangeName,
-                    $exchangeType
-                )
-            );
-
-            $queues = $exchangeInformation['queues'];
-            foreach ($queues as $queueInformation) {
-                $queueName = $queueInformation['name'];
-                $routingKey = isset($queueInformation['routingKey']) ? $queueInformation['routingKey'] : '';
-
-                $this->driver->declareAndBindQueue($exchangeName, $queueName, $routingKey);
-
-                $output->writeln(sprintf(
-                    '<info>Bind exchange <comment>%s</comment> to queue ' .
-                    '<comment>%s</comment> [<comment>%s</comment>]</info>',
-                    $exchangeName,
-                    $queueName,
-                    $routingKey
-                ));
-            }
+            $this->bindExchange($exchangeInformation, $output);
         }
+    }
+
+    /**
+     * @param array           $exchangeInformation
+     * @param OutputInterface $output
+     */
+    private function bindExchange(array $exchangeInformation, OutputInterface $output)
+    {
+        $exchangeName = $exchangeInformation['name'];
+        $exchangeType = $exchangeInformation['type'];
+
+        $this->driver->declareExchange($exchangeName, $exchangeType);
+
+        $output->writeln(
+            sprintf(
+                '<info>Declare exchange <comment>%s</comment> [<comment>%s</comment>]</info>',
+                $exchangeName,
+                $exchangeType
+            )
+        );
+
+        $queues = $exchangeInformation['queues'];
+        foreach ($queues as $queueInformation) {
+            $this->bindQueue($output, $queueInformation, $exchangeName);
+        }
+    }
+
+    /**
+     * @param string          $exchangeName
+     * @param string          $queueInformation
+     * @param OutputInterface $output
+     */
+    private function bindQueue(
+        $exchangeName,
+        $queueInformation,
+        OutputInterface $output
+    ) {
+        $queueName = $queueInformation['name'];
+        $routingKey = isset($queueInformation['routingKey']) ? $queueInformation['routingKey'] : '';
+
+        $this->driver->declareAndBindQueue($exchangeName, $queueName, $routingKey);
+
+        $output->writeln(sprintf(
+            '<info>Bind exchange <comment>%s</comment> to queue ' .
+            '<comment>%s</comment> [<comment>%s</comment>]</info>',
+            $exchangeName,
+            $queueName,
+            $routingKey
+        ));
     }
 }

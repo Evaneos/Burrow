@@ -34,7 +34,6 @@ class HandlerBuilder
     public function __construct(Driver $driver)
     {
         $this->driver = $driver;
-        $this->consumer = null;
 
         $this->sync = null;
         $this->requeueOnFailure = true;

@@ -51,7 +51,7 @@ class DriverFactory
     /**
      * @param $connection
      *
-     * @return \AMQPConnection | AMQPLazyConnection
+     * @return mixed|\AMQPConnection|AMQPLazyConnection
      */
     private static function getConnectionFromArray($connection)
     {

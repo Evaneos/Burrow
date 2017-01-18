@@ -30,11 +30,11 @@ class Message
     /**
      * Message constructor.
      *
-     * @param string    $body
-     * @param string    $routingKey
-     * @param \string[] $headers
-     * @param string    $correlationId
-     * @param string    $replyTo
+     * @param string   $body
+     * @param string   $routingKey
+     * @param string[] $headers
+     * @param string   $correlationId
+     * @param string   $replyTo
      */
     public function __construct($body, $routingKey = '', array $headers = [], $correlationId = '', $replyTo = '')
     {

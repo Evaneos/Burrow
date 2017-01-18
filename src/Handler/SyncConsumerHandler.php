@@ -71,9 +71,7 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
      */
     private function handleSyncMessage(Message $message, $returnValue)
     {
-        if ($message->getCorrelationId() == '' && $message->getReplyTo() == '') {
-            throw ConsumerException::invalidSyncMessage();
-        }
+        self::checkMessageIsSync($message);
 
         $this->logger->debug(
             'Send return value back!',
@@ -93,5 +91,15 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
                 $message->getCorrelationId()
             )
         );
+    }
+
+    /**
+     * @param Message $message
+     */
+    private static function checkMessageIsSync(Message $message)
+    {
+        if ($message->getCorrelationId() == '' && $message->getReplyTo() == '') {
+            throw ConsumerException::invalidSyncMessage();
+        }
     }
 }

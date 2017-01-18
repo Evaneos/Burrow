@@ -184,18 +184,7 @@ class PhpAmqpLibDriver implements Driver
             }
         );
 
-        while (count($this->getChannel()->callbacks) && !$this->stop) {
-            try {
-                $this->getChannel()->wait(null, false, $timeout);
-            } catch (AMQPTimeoutException $e) {
-                throw TimeoutException::build($e, $timeout);
-            } catch (\Exception $e) {
-                if ($e instanceof AMQPExceptionInterface) {
-                    throw ConsumerException::build($e);
-                }
-                throw $e;
-            }
-        }
+        $this->wait($timeout);
     }
 
     /**
@@ -246,6 +235,27 @@ class PhpAmqpLibDriver implements Driver
         }
 
         return $this->channel;
+    }
+
+    /**
+     * @param $timeout
+     *
+     * @throws \Exception
+     */
+    private function wait($timeout)
+    {
+        while (count($this->getChannel()->callbacks) && !$this->stop) {
+            try {
+                $this->getChannel()->wait(null, false, $timeout);
+            } catch (AMQPTimeoutException $e) {
+                throw TimeoutException::build($e, $timeout);
+            } catch (\Exception $e) {
+                if ($e instanceof AMQPExceptionInterface) {
+                    throw ConsumerException::build($e);
+                }
+                throw $e;
+            }
+        }
     }
 
     /**
