@@ -4,6 +4,8 @@ namespace Burrow\CLI;
 
 use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,6 +23,8 @@ class BindCommand extends Command
      * DeclareQueueCommand constructor.
      *
      * @param Driver $driver
+     *
+     * @throws LogicException
      */
     public function __construct(Driver $driver)
     {
@@ -56,6 +60,8 @@ class BindCommand extends Command
      * @param OutputInterface $output
      *
      * @return int|null|void
+     *
+     * @throws InvalidArgumentException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

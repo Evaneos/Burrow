@@ -3,8 +3,11 @@
 namespace Burrow\CLI;
 
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 use Burrow\Driver;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,6 +24,8 @@ class InitCommand extends Command
      * DeclareQueueCommand constructor.
      *
      * @param Driver $driver
+     *
+     * @throws LogicException
      */
     public function __construct(Driver $driver)
     {
@@ -45,6 +50,10 @@ class InitCommand extends Command
      * @param OutputInterface $output
      *
      * @return int|null|void
+     *
+     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
+     * @throws AssertionFailedException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -57,6 +66,10 @@ class InitCommand extends Command
      * @param InputInterface $input
      *
      * @return array
+     *
+     * @throws \InvalidArgumentException
+     * @throws AssertionFailedException
+     * @throws InvalidArgumentException
      */
     protected function getConfiguration(InputInterface $input)
     {
@@ -78,6 +91,8 @@ class InitCommand extends Command
 
     /**
      * @param array $configuration
+     *
+     * @throws AssertionFailedException
      */
     private static function checkConfiguration(array $configuration)
     {
@@ -87,6 +102,8 @@ class InitCommand extends Command
 
     /**
      * @param array $configuration
+     *
+     * @throws AssertionFailedException
      */
     private static function checkQueuesConfiguration(array $configuration)
     {
@@ -95,6 +112,7 @@ class InitCommand extends Command
         $queues = $configuration['queues'];
         Assertion::isArray($queues, 'The `queues` configuration must be an array');
 
+        /** @var string[]|string[][] $queues */
         foreach ($queues as $queueInformation) {
             if (is_string($queueInformation)) {
                 continue;
@@ -105,6 +123,8 @@ class InitCommand extends Command
 
     /**
      * @param array $configuration
+     *
+     * @throws AssertionFailedException
      */
     private static function checkExchangesConfiguration(array $configuration)
     {
@@ -113,6 +133,7 @@ class InitCommand extends Command
         $exchanges = $configuration['exchanges'];
         Assertion::isArray($exchanges, 'The `exchanges` configuration must be an array');
 
+        /** @var string[][] $exchanges */
         foreach ($exchanges as $exchangeInformation) {
             self::checkExchangeConfiguration($exchangeInformation);
         }
@@ -120,6 +141,8 @@ class InitCommand extends Command
 
     /**
      * @param array $exchangeInformation
+     *
+     * @throws AssertionFailedException
      */
     private static function checkExchangeConfiguration(array $exchangeInformation)
     {
@@ -136,6 +159,7 @@ class InitCommand extends Command
     private function declareQueues($configuration, OutputInterface $output)
     {
         $queues = $configuration['queues'];
+        /** @var string[] $queues */
         foreach ($queues as $queue) {
             $this->driver->declareSimpleQueue($queue);
             $output->writeln(sprintf('<info>Declare queue <comment>%s</comment></info>', $queue));
@@ -149,6 +173,7 @@ class InitCommand extends Command
     private function bind(array $configuration, OutputInterface $output)
     {
         $exchanges = $configuration['exchanges'];
+        /** @var string[][] $exchanges */
         foreach ($exchanges as $exchangeInformation) {
             $this->bindExchange($exchangeInformation, $output);
         }
@@ -174,6 +199,7 @@ class InitCommand extends Command
         );
 
         $queues = $exchangeInformation['queues'];
+        /** @var string[][] $queues */
         foreach ($queues as $queueInformation) {
             $this->bindQueue($exchangeName, $queueInformation, $output);
         }

@@ -2,6 +2,7 @@
 
 namespace Burrow\Driver;
 
+use Assert\AssertionFailedException;
 use Burrow\Driver;
 use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
@@ -152,6 +153,9 @@ class PhpAmqpLibDriver implements Driver
      * @param bool     $autoAck
      *
      * @return void
+     * @throws AssertionFailedException
+     * @throws \OutOfBoundsException
+     * @throws \InvalidArgumentException
      * @throws \Exception
      */
     public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true)
@@ -288,6 +292,8 @@ class PhpAmqpLibDriver implements Driver
      * @param AMQPMessage $message
      *
      * @return array
+     *
+     * @throws \OutOfBoundsException
      */
     private static function getHeaders(AMQPMessage $message)
     {
@@ -299,6 +305,8 @@ class PhpAmqpLibDriver implements Driver
      * @param AMQPMessage $message
      *
      * @return string
+     *
+     * @throws \OutOfBoundsException
      */
     private static function getCorrelationId(AMQPMessage $message)
     {
@@ -310,6 +318,8 @@ class PhpAmqpLibDriver implements Driver
      * @param AMQPMessage $message
      *
      * @return string
+     *
+     * @throws \OutOfBoundsException
      */
     private static function getReplyTo(AMQPMessage $message)
     {

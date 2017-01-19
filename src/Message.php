@@ -3,6 +3,7 @@
 namespace Burrow;
 
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 
 class Message
 {
@@ -35,13 +36,16 @@ class Message
      * @param string[] $headers
      * @param string   $correlationId
      * @param string   $replyTo
+     *
+     * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      */
     public function __construct($body, $routingKey = '', array $headers = [], $correlationId = '', $replyTo = '')
     {
         Assertion::string($body, 'Message body must be a string');
-        Assertion::String($routingKey, 'Routing key must be a string');
-        Assertion::String($correlationId, 'Correlation ID must be a string');
-        Assertion::String($replyTo, 'Reply To must be a string');
+        Assertion::string($routingKey, 'Routing key must be a string');
+        Assertion::string($correlationId, 'Correlation ID must be a string');
+        Assertion::string($replyTo, 'Reply To must be a string');
 
         $this->checkHeaders($headers);
 
@@ -126,6 +130,9 @@ class Message
 
     /**
      * @param string[] $headers
+     *
+     * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      */
     private function checkHeaders(array $headers)
     {

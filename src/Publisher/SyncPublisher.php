@@ -2,6 +2,7 @@
 
 namespace Burrow\Publisher;
 
+use Assert\AssertionFailedException;
 use Burrow\Driver;
 use Burrow\Message;
 use Burrow\QueueHandler;
@@ -40,11 +41,14 @@ class SyncPublisher implements QueuePublisher
      * @param string[] $headers
      *
      * @return mixed
+     *
+     * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      */
     public function publish($data, $routingKey = '', array $headers = [])
     {
         $response = null;
-        $correlationId = uniqid();
+        $correlationId = uniqid('', false);
         $replyTo = $this->driver->declareSimpleQueue('', Driver::QUEUE_EXCLUSIVE);
 
         $this->driver->publish(
@@ -54,7 +58,7 @@ class SyncPublisher implements QueuePublisher
 
         $this->driver->consume(
             $replyTo,
-            function (Message $message) use ($replyTo, $correlationId, &$response) {
+            function (Message $message) use ($correlationId, &$response) {
                 if ($message->getCorrelationId() == $correlationId) {
                     $response = $message->getBody();
                     return QueueHandler::STOP_CONSUMING;

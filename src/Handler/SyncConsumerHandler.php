@@ -2,6 +2,7 @@
 
 namespace Burrow\Handler;
 
+use Assert\AssertionFailedException;
 use Burrow\ConsumeOptions;
 use Burrow\Driver;
 use Burrow\Exception\ConsumerException;
@@ -42,6 +43,10 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
      * @param Message $message
      *
      * @return bool
+     *
+     * @throws AssertionFailedException
+     * @throws ConsumerException
+     * @throws \InvalidArgumentException
      */
     public function handle(Message $message)
     {
@@ -68,6 +73,10 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
      *
      * @param Message $message
      * @param string  $returnValue
+     *
+     * @throws ConsumerException
+     * @throws AssertionFailedException
+     * @throws \InvalidArgumentException
      */
     private function handleSyncMessage(Message $message, $returnValue)
     {
@@ -95,6 +104,8 @@ class SyncConsumerHandler implements QueueHandler, LoggerAwareInterface
 
     /**
      * @param Message $message
+     *
+     * @throws ConsumerException
      */
     private static function checkMessageIsSync(Message $message)
     {

@@ -3,6 +3,7 @@
 namespace Burrow\Serializer;
 
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 use Burrow\Serializer;
 
 class JsonSerializer implements Serializer
@@ -21,6 +22,8 @@ class JsonSerializer implements Serializer
      * @param string $message
      *
      * @return mixed
+     *
+     * @throws AssertionFailedException
      */
     public function deserialize($message)
     {

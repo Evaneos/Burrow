@@ -25,14 +25,14 @@ class DriverFactory
      * @param $connection
      *
      * @return Driver
+     *
+     * @throws \AMQPConnectionException
+     * @throws \InvalidArgumentException
      */
     public static function getDriver($connection)
     {
         if (is_array($connection) &&
-            isset($connection['host']) &&
-            isset($connection['port']) &&
-            isset($connection['user']) &&
-            isset($connection['pwd'])
+            isset($connection['host'], $connection['port'], $connection['user'], $connection['pwd'])
         ) {
             $connection = self::getConnectionFromArray($connection);
         }
@@ -52,6 +52,8 @@ class DriverFactory
      * @param $connection
      *
      * @return mixed|\AMQPConnection|AMQPLazyConnection
+     *
+     * @throws \AMQPConnectionException
      */
     private static function getConnectionFromArray($connection)
     {
@@ -66,6 +68,8 @@ class DriverFactory
      * @param string[] $connection
      *
      * @return \AMQPConnection
+     *
+     * @throws \AMQPConnectionException
      *
      * @codeCoverageIgnore
      */

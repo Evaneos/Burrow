@@ -67,7 +67,7 @@ class StopOnExceptionHandlerTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->serviceUnderTest->handle($this->message);
 
-        $this->assertfalse($result);
+        $this->assertFalse($result);
     }
 
     /**

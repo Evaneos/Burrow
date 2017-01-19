@@ -2,6 +2,7 @@
 
 namespace Burrow\Driver;
 
+use Assert\AssertionFailedException;
 use Burrow\Driver;
 use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
@@ -38,9 +39,13 @@ class PeclAmqpDriver implements Driver
      * Declare a persistent queue
      *
      * @param string $queueName
-     * @param string  $type
+     * @param string $type
      *
      * @return string
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function declareSimpleQueue($queueName = '', $type = self::QUEUE_DURABLE)
     {
@@ -63,6 +68,10 @@ class PeclAmqpDriver implements Driver
      * @param  string $type
      *
      * @return string
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPExchangeException
      */
     public function declareExchange($exchangeName = '', $type = self::EXCHANGE_TYPE_FANOUT)
     {
@@ -82,6 +91,10 @@ class PeclAmqpDriver implements Driver
      * @param  string $routingKey
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function bindQueue($exchange, $queueName, $routingKey = '')
     {
@@ -97,6 +110,10 @@ class PeclAmqpDriver implements Driver
      * @param  string $routingKey
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function declareAndBindQueue($exchange, $queueName, $routingKey = '')
     {
@@ -110,6 +127,10 @@ class PeclAmqpDriver implements Driver
      * @param string $queueName
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function deleteQueue($queueName)
     {
@@ -122,6 +143,10 @@ class PeclAmqpDriver implements Driver
      * @param string $exchangeName
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPExchangeException
      */
     public function deleteExchange($exchangeName)
     {
@@ -135,6 +160,10 @@ class PeclAmqpDriver implements Driver
      * @param Message $message
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPExchangeException
      */
     public function publish($exchangeName, Message $message)
     {
@@ -156,6 +185,14 @@ class PeclAmqpDriver implements Driver
      * @param bool     $autoAck
      *
      * @return void
+     *
+     * @throws ConsumerException
+     * @throws TimeoutException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
+     * @throws \InvalidArgumentException
+     * @throws AssertionFailedException
      */
     public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true)
     {
@@ -193,6 +230,10 @@ class PeclAmqpDriver implements Driver
      * @param Message $message
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function ack(Message $message)
     {
@@ -207,11 +248,15 @@ class PeclAmqpDriver implements Driver
      * @param bool    $requeue
      *
      * @return void
+     *
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
+     * @throws \AMQPQueueException
      */
     public function nack(Message $message, $requeue = true)
     {
         $queue = $this->getQueue($message->getQueue());
-        $queue->nack($message->getDeliveryTag(), ($requeue) ? AMQP_REQUEUE : AMQP_NOPARAM);
+        $queue->nack($message->getDeliveryTag(), $requeue ? AMQP_REQUEUE : AMQP_NOPARAM);
     }
 
     /**
@@ -226,6 +271,8 @@ class PeclAmqpDriver implements Driver
 
     /**
      * @return \AMQPChannel
+     *
+     * @throws \AMQPConnectionException
      */
     private function getChannel()
     {
@@ -241,6 +288,9 @@ class PeclAmqpDriver implements Driver
      * @param string $queueName
      *
      * @return \AMQPQueue
+     *
+     * @throws \AMQPQueueException
+     * @throws \AMQPConnectionException
      */
     private function getQueue($queueName)
     {
@@ -256,6 +306,9 @@ class PeclAmqpDriver implements Driver
      * @param string $exchangeName
      *
      * @return \AMQPExchange
+     *
+     * @throws \AMQPExchangeException
+     * @throws \AMQPConnectionException
      */
     private function getExchange($exchangeName)
     {

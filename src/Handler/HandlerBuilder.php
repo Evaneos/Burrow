@@ -3,6 +3,7 @@
 namespace Burrow\Handler;
 
 use Assert\Assertion;
+use Assert\AssertionFailedException;
 use Burrow\Driver;
 use Burrow\QueueConsumer;
 use Burrow\QueueHandler;
@@ -110,18 +111,20 @@ class HandlerBuilder
      * @param QueueConsumer $consumer
      *
      * @return QueueHandler
+     *
+     * @throws AssertionFailedException
      */
     public function build(QueueConsumer $consumer)
     {
         Assertion::notNull($this->sync, 'You must specify if the handler must be sync or async');
 
-        $syncAsync = ($this->sync) ?
+        $syncAsync = $this->sync ?
             new SyncConsumerHandler($consumer, $this->driver) :
             new AsyncConsumerHandler($consumer);
 
         $ackHandler = new AckHandler($syncAsync, $this->driver, $this->requeueOnFailure);
 
-        $handler = ($this->stopOnFailure) ?
+        $handler = $this->stopOnFailure ?
             new StopOnExceptionHandler($ackHandler) :
             new ContinueOnExceptionHandler($ackHandler);
 
