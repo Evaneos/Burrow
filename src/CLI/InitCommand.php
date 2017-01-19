@@ -96,6 +96,9 @@ class InitCommand extends Command
         Assertion::isArray($queues, 'The `queues` configuration must be an array');
 
         foreach ($queues as $queueInformation) {
+            if (is_string($queueInformation)) {
+                continue;
+            }
             Assertion::keyIsset($queueInformation, 'name', 'You must provide a name for the queue');
         }
     }
