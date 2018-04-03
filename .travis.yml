@@ -8,9 +8,13 @@ php:
   - 7.0
 env:
   - SYMFONY_CONSOLE_VERSION=2.8.*
-  - SYMFONY_CONSOLE_VERSION=3.0.*
-  - SYMFONY_CONSOLE_VERSION=3.1.*
-  - SYMFONY_CONSOLE_VERSION=3.2.*
+  - SYMFONY_CONSOLE_VERSION=3.*
+matrix:
+  include:
+    - php: 7.1
+      env: SYMFONY_CONSOLE_VERSION=4.*
+    - php: 7.2
+      env: SYMFONY_CONSOLE_VERSION=4.*
 
 services:
   - rabbitmq
@@ -20,11 +24,11 @@ addons:
     - default
 
 install:
+  - composer require symfony/console:${SYMFONY_CONSOLE_VERSION}
   - travis_retry composer install --no-interaction --prefer-source
 
 before_script:
   - travis_retry wget https://scrutinizer-ci.com/ocular.phar
-  - composer require symfony/console:${SYMFONY_CONSOLE_VERSION}
 
 script:
   - vendor/bin/phpunit --config=phpunit-coverage.xml --coverage-clover=coverage.xml
