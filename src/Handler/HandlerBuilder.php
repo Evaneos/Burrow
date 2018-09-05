@@ -16,6 +16,9 @@ class HandlerBuilder
     private $driver;
 
     /** @var bool */
+    private $autoAck;
+
+    /** @var bool */
     private $sync;
 
     /** @var bool */
@@ -36,11 +39,23 @@ class HandlerBuilder
     {
         $this->driver = $driver;
 
+        $this->autoAck = false;
+
         $this->sync = null;
         $this->requeueOnFailure = true;
         $this->stopOnFailure = true;
 
         $this->logger = new NullLogger();
+    }
+
+    /**
+     * Keeps the autoAcking behavior
+     */
+    public function autoAck()
+    {
+        $this->autoAck = true;
+
+        return $this->doNotRequeueOnFailure(); // cannot be re-queued if it's auto-acked
     }
 
     /**
@@ -118,17 +133,21 @@ class HandlerBuilder
     {
         Assertion::notNull($this->sync, 'You must specify if the handler must be sync or async');
 
-        $syncAsync = $this->sync ?
+        // Sync
+        $handler = $this->sync ?
             new SyncConsumerHandler($consumer, $this->driver) :
             new AsyncConsumerHandler($consumer);
+        $handler->setLogger($this->logger);
 
-        $ackHandler = new AckHandler($syncAsync, $this->driver, $this->requeueOnFailure);
+        // Ack
+        $handler = $this->autoAck ?
+            $handler :
+            new AckHandler($handler, $this->driver, $this->requeueOnFailure);
 
+        // Stop / Continue
         $handler = $this->stopOnFailure ?
-            new StopOnExceptionHandler($ackHandler) :
-            new ContinueOnExceptionHandler($ackHandler);
-
-        $syncAsync->setLogger($this->logger);
+            new StopOnExceptionHandler($handler) :
+            new ContinueOnExceptionHandler($handler);
         $handler->setLogger($this->logger);
 
         return $handler;
