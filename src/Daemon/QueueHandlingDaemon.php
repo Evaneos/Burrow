@@ -61,7 +61,11 @@ class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
             $this->queueName,
             function (Message $message) {
                 $this->monitor->monitor($this, $message);
-                return $this->handler->handle($message);
+                $result = $this->handler->handle($message);
+
+                pcntl_signal_dispatch();
+
+                return $result;
             },
             $options->getTimeout(),
             $options->isAutoAck()

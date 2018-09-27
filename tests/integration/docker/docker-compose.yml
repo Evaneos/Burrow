@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+    rabbitmq:
+        build: rabbitmq
+        ports:
+          - "15672:15672"
+    php-amqp-php-lib:
+        build: php-amqp-php-lib
+        volumes:
+          - ../../../:/app
+        working_dir: /app
+        entrypoint: vendor/bin/phpunit tests/integration/StopTest.php
+    php-pecl-ext:
+        build: php-pecl-ext
+        volumes:
+            - ../../../:/app
+        working_dir: /app
+        entrypoint: vendor/bin/phpunit tests/integration/StopTest.php
