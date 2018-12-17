@@ -5,10 +5,16 @@ namespace Burrow\Test\Daemon;
 use Burrow\ConsumeOptions;
 use Burrow\Daemon\QueueHandlingDaemon;
 use Burrow\Driver;
+use Burrow\Event\DaemonStarted;
+use Burrow\Event\DaemonStopped;
+use Burrow\Event\MessageConsumed;
+use Burrow\Event\MessageReceived;
 use Burrow\Message;
 use Burrow\QueueHandler;
 use Evaneos\Daemon\DaemonMonitor;
 use Faker\Factory;
+use League\Event\EmitterInterface;
+use Mockery\Matcher\MustBe;
 use Mockery\Mock;
 
 class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
@@ -34,6 +40,9 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
     /** @var QueueHandlingDaemon */
     private $serviceUnderTest;
 
+    /** @var EmitterInterface | Mock */
+    private $eventEmitter;
+
     /**
      * Init
      */
@@ -50,10 +59,13 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
 
         $this->monitor = \Mockery::mock(DaemonMonitor::class);
 
+        $this->eventEmitter = \Mockery::mock(EmitterInterface::class);
+
         $this->serviceUnderTest = new QueueHandlingDaemon(
             $this->driver,
             $this->handler,
-            $this->queueName
+            $this->queueName,
+            $this->eventEmitter
         );
     }
 
@@ -72,6 +84,7 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
     {
         $this->givenHandlerWillReturnConsumeOptions();
 
+        $this->assertItWillEmitEvents();
         $this->assertMessageWillBeHandled();
         $this->assertDriverWillConsume();
         $this->assertDriverWillBeClosedOnceConsumingIsOver();
@@ -86,6 +99,7 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
     {
         $this->givenHandlerWillReturnConsumeOptions();
 
+        $this->assertItWillEmitEvents();
         $this->assertMessageWillBeHandled();
         $this->assertDriverWillConsume();
         $this->assertDriverWillBeClosedOnceConsumingIsOver();
@@ -138,6 +152,29 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
         $this->monitor
             ->shouldReceive('monitor')
             ->with($this->serviceUnderTest, $this->message)
+            ->once();
+    }
+
+    private function assertItWillEmitEvents()
+    {
+        $this->eventEmitter
+            ->shouldReceive('emit')
+            ->with(new MustBe(new DaemonStarted()))
+            ->once();
+
+        $this->eventEmitter
+            ->shouldReceive('emit')
+            ->with(new MustBe(new MessageReceived()))
+            ->once();
+
+        $this->eventEmitter
+            ->shouldReceive('emit')
+            ->with(new MustBe(new MessageConsumed()))
+            ->once();
+
+        $this->eventEmitter
+            ->shouldReceive('emit')
+            ->with(new MustBe(new DaemonStopped()))
             ->once();
     }
 }
