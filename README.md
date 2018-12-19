@@ -102,6 +102,48 @@ $worker->run();
 In the command-line, launch both scripts from a different terminal, the message 'my_message', should be displayed in the
 publisher terminal.
 
+Events
+-------
+
+You can add your emitter to subscribe events:
+- [DaemonStart](src/Event/DaemonStarted.php)
+- [DaemonStopped](src/Event/DaemonStopped.php)
+- [MessageReceived](src/Event/MessageReceived.php)
+- [MessageConsumed](src/Event/MessageStopped.php)
+
+```php
+$emitter = new League\Event\Emitter();
+$emitter->addListener(new MyListener());
+
+new QueueHandlingDaemon([..], $emitter);
+```
+
+Metrics
+-------
+
+Based on events, you can subscribe a built-in metric publisher which will send this metrics:
+- `daemon.started`
+- `daemon.stopped`
+- `daemon.message_received`
+- `daemon.message_consumed`
+
+There is an implementation for StatsD and DogStatsD.
+
+```php
+$config = ['host' => 'host', 'port' => 'port'];
+
+// StatsD
+$metricService = MetricServiceFactory::create('statsd', $config);
+// DogStatsD
+$tags = ['service' => 'myService']; // This tags will be sent with all the metrics
+$metricService = MetricServiceFactory::create('dogstats', $config, $tags);
+
+$emitter = new League\Event\Emitter();
+$emitter->useListenerProvider(new SendMetricSubscriber($metricService));
+
+new QueueHandlingDaemon([..], $emitter);
+```
+
 Examples
 --------
 
