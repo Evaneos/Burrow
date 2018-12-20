@@ -93,7 +93,6 @@ class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
         );
 
         $this->stop();
-        $this->eventEmitter->emit(new DaemonStopped());
     }
 
     /**
@@ -106,6 +105,8 @@ class QueueHandlingDaemon implements Daemon, LoggerAwareInterface
         $this->logger->info('Closing daemon...');
 
         $this->driver->close();
+
+        $this->eventEmitter->emit(new DaemonStopped());
     }
 
     /**

@@ -87,7 +87,7 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
         $this->assertItWillEmitEvents();
         $this->assertMessageWillBeHandled();
         $this->assertDriverWillConsume();
-        $this->assertDriverWillBeClosedOnceConsumingIsOver();
+        $this->assertDriverWillBeClosed();
 
         $this->serviceUnderTest->start();
     }
@@ -102,12 +102,23 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
         $this->assertItWillEmitEvents();
         $this->assertMessageWillBeHandled();
         $this->assertDriverWillConsume();
-        $this->assertDriverWillBeClosedOnceConsumingIsOver();
+        $this->assertDriverWillBeClosed();
 
         $this->assertItWillMonitorTheConsumption();
 
         $this->serviceUnderTest->setMonitor($this->monitor);
         $this->serviceUnderTest->start();
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldEmitDaemonStoppedWhenStop()
+    {
+        $this->assertDriverWillBeClosed();
+        $this->assertItWillEmitDaemonStoppedEvent();
+
+        $this->serviceUnderTest->stop();
     }
 
     protected function givenHandlerWillReturnConsumeOptions()
@@ -140,7 +151,7 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
             );
     }
 
-    protected function assertDriverWillBeClosedOnceConsumingIsOver()
+    protected function assertDriverWillBeClosed()
     {
         $this->driver
             ->shouldReceive('close')
@@ -172,6 +183,14 @@ class QueueHandlingDaemonTest extends \PHPUnit_Framework_TestCase
             ->with(new MustBe(new MessageConsumed()))
             ->once();
 
+        $this->eventEmitter
+            ->shouldReceive('emit')
+            ->with(new MustBe(new DaemonStopped()))
+            ->once();
+    }
+
+    private function assertItWillEmitDaemonStoppedEvent()
+    {
         $this->eventEmitter
             ->shouldReceive('emit')
             ->with(new MustBe(new DaemonStopped()))
