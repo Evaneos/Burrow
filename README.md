@@ -122,10 +122,11 @@ Metrics
 -------
 
 Based on events, you can subscribe a built-in metric publisher which will send this metrics:
-- `daemon.started`
-- `daemon.stopped`
-- `daemon.message_received`
-- `daemon.message_consumed`
+- `daemon.started` (increment)
+- `daemon.stopped` (increment)
+- `daemon.message_received` (increment)
+- `daemon.message_consumed` (increment)
+- `daemon.message_processing_time` (timing)
 
 There is an implementation for StatsD and DogStatsD.
 

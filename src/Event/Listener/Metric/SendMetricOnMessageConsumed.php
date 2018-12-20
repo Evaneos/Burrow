@@ -50,8 +50,12 @@ class SendMetricOnMessageConsumed implements ListenerInterface
             throw ListenerException::badEventGiven($event);
         }
 
+        $this->metricService->increment(
+            'daemon.message_consumed'
+        );
+
         $this->metricService->timing(
-            'daemon.message_consumed',
+            'daemon.message_processing_time',
             $this->clock->timestampInMs() - $this->messageReceivedAt
         );
     }

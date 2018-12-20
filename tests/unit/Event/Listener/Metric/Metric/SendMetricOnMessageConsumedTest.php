@@ -49,8 +49,13 @@ class SendMetricOnMessageConsumedTest extends \PHPUnit_Framework_TestCase
     private function assertIncrementCalledOnMetricService()
     {
         $this->metricService
+            ->shouldReceive('increment')
+            ->with('daemon.message_consumed')
+            ->once();
+
+        $this->metricService
             ->shouldReceive('timing')
-            ->with('daemon.message_consumed', 0)
+            ->with('daemon.message_processing_time', 0)
             ->once();
     }
 
