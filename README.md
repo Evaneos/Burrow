@@ -140,7 +140,7 @@ $tags = ['service' => 'myService']; // This tags will be sent with all the metri
 $metricService = MetricServiceFactory::create('dogstats', $config, $tags);
 
 $emitter = new League\Event\Emitter();
-$emitter->useListenerProvider(new SendMetricSubscriber($metricService));
+$emitter->useListenerProvider(new SendMetricListenerProvider($metricService));
 
 new QueueHandlingDaemon([..], $emitter);
 ```
