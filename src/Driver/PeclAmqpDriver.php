@@ -53,7 +53,7 @@ class PeclAmqpDriver implements Driver
         if ($type === self::QUEUE_EXCLUSIVE) {
             $flag = AMQP_EXCLUSIVE;
         }
-        
+
         $queue = $this->getQueue($queueName);
         $queue->setFlags($flag);
         $queue->declareQueue();
@@ -64,8 +64,8 @@ class PeclAmqpDriver implements Driver
     /**
      * Declare an exchange
      *
-     * @param  string $exchangeName
-     * @param  string $type
+     * @param string $exchangeName
+     * @param string $type
      *
      * @return string
      *
@@ -86,9 +86,9 @@ class PeclAmqpDriver implements Driver
     /**
      * Bind an existing queue to an exchange
      *
-     * @param  string $exchange
-     * @param  string $queueName
-     * @param  string $routingKey
+     * @param string $exchange
+     * @param string $queueName
+     * @param string $routingKey
      *
      * @return void
      *
@@ -105,9 +105,9 @@ class PeclAmqpDriver implements Driver
     /**
      * Create a persisting queue and bind it to an exchange
      *
-     * @param  string $exchange
-     * @param  string $queueName
-     * @param  string $routingKey
+     * @param string $exchange
+     * @param string $queueName
+     * @param string $routingKey
      *
      * @return void
      *
@@ -156,7 +156,7 @@ class PeclAmqpDriver implements Driver
     /**
      * Publish a message in the exchange
      *
-     * @param string  $exchangeName
+     * @param string $exchangeName
      * @param Message $message
      *
      * @return void
@@ -179,10 +179,10 @@ class PeclAmqpDriver implements Driver
     /**
      * Consume the queue
      *
-     * @param string   $queueName
-     * @param callable $callback
-     * @param int      $timeout
-     * @param bool     $autoAck
+     * @param string $queueName
+     * @param callable $callback Must return false if you want to consume only one message
+     * @param int $timeout
+     * @param bool $autoAck
      *
      * @return void
      *
@@ -200,7 +200,7 @@ class PeclAmqpDriver implements Driver
         $this->getChannel()->setPrefetchCount(1);
         $queue = $this->getQueue($queueName);
         $flags = $autoAck ? AMQP_AUTOACK : AMQP_NOPARAM;
-
+        $consumerTag = self::generateConsumerTag();
         try {
             $queue->consume(function (\AMQPEnvelope $message) use ($callback, $queueName) {
 
@@ -215,12 +215,14 @@ class PeclAmqpDriver implements Driver
                 $burrowMessage->setQueue($queueName);
 
                 return $callback($burrowMessage);
-            }, $flags);
+            }, $flags, $consumerTag);
         } catch (\AMQPQueueException $e) {
             if ($e->getMessage() === 'Consumer timeout exceed') {
                 throw TimeoutException::build($e, $timeout);
             }
             throw ConsumerException::build($e);
+        } finally {
+            $queue->cancel($consumerTag);
         }
     }
 
@@ -245,7 +247,7 @@ class PeclAmqpDriver implements Driver
      * Acknowledge an error during the consumption of the message
      *
      * @param Message $message
-     * @param bool    $requeue
+     * @param bool $requeue
      *
      * @return void
      *
@@ -330,9 +332,9 @@ class PeclAmqpDriver implements Driver
     private static function getMessageProperties(Message $message)
     {
         $properties = [
-            self::DELIVERY_MODE       => 2,
-            self::CONTENT_TYPE        => 'text/plain',
-            self::APPLICATION_HEADERS => $message->getHeaders()
+            self::DELIVERY_MODE => 2,
+            self::CONTENT_TYPE => 'text/plain',
+            self::APPLICATION_HEADERS => $message->getHeaders(),
         ];
 
         if ($message->getCorrelationId() !== null) {
@@ -344,5 +346,13 @@ class PeclAmqpDriver implements Driver
         }
 
         return $properties;
+    }
+
+    private static function generateConsumerTag(
+        $prefix = 'consumer-tags',
+        $length = 10,
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ) {
+        return $prefix . substr(str_shuffle(str_repeat($chars, ceil($length / strlen($chars)))), 1, $length);
     }
 }
