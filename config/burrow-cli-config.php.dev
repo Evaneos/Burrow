@@ -1,0 +1,8 @@
+<?php
+// Config example
+return [
+    'host' => 'rabbitmq',
+    'port' => '5672',
+    'user' => 'guest',
+    'pwd' => 'guest'
+];

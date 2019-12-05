@@ -2,3 +2,5 @@
 composer.lock
 
 tests/output
+
+config/burrow-cli-config.php

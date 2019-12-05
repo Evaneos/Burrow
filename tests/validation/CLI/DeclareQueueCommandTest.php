@@ -42,7 +42,10 @@ class DeclareQueueCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:declare:queue', $this->queueName);
         $process->run();
 
-        $this->assertTrue($process->isSuccessful());
+        self::assertTrue(
+            $process->isSuccessful(),
+            sprintf("Error while running process : \n%s", $process->getErrorOutput())
+        );
         // TODO assert queue exists
     }
 
@@ -54,7 +57,7 @@ class DeclareQueueCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:declare:queue');
         $process->run();
 
-        $this->assertFalse($process->isSuccessful());
+        self::assertFalse($process->isSuccessful());
         // TODO assert queue doesn't exist
     }
 
