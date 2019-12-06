@@ -44,7 +44,10 @@ class DeleteQueueCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:delete:queue', $this->queueName);
         $process->run();
 
-        $this->assertTrue($process->isSuccessful());
+        self::assertTrue(
+            $process->isSuccessful(),
+            sprintf("Error while running process : \n%s", $process->getErrorOutput())
+        );
         // TODO assert queue has been deleted
     }
 
@@ -56,7 +59,7 @@ class DeleteQueueCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:delete:queue');
         $process->run();
 
-        $this->assertFalse($process->isSuccessful());
+        self::assertFalse($process->isSuccessful());
         // TODO assert queue still exists
     }
 

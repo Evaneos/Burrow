@@ -44,7 +44,10 @@ class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:delete:exchange', $this->exchangeName);
         $process->run();
 
-        $this->assertTrue($process->isSuccessful());
+        self::assertTrue(
+            $process->isSuccessful(),
+            sprintf("Error while running process : \n%s", $process->getErrorOutput())
+        );
         // TODO assert exchange has been deleted
     }
 
@@ -56,7 +59,7 @@ class DeleteExchangeCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:delete:exchange');
         $process->run();
 
-        $this->assertFalse($process->isSuccessful());
+        self::assertFalse($process->isSuccessful());
         // TODO assert exchange still exists
     }
 

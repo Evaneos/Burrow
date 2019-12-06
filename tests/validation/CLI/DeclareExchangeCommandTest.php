@@ -42,7 +42,10 @@ class DeclareExchangeCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:declare:exchange', $this->exchangeName);
         $process->run();
 
-        $this->assertTrue($process->isSuccessful());
+        self::assertTrue(
+            $process->isSuccessful(),
+            sprintf("Error while running process : \n%s", $process->getErrorOutput())
+        );
         // TODO assert exchange exists
     }
 
@@ -54,7 +57,7 @@ class DeclareExchangeCommandTest extends \PHPUnit_Framework_TestCase
         $process = $this->getBurrowProcess('admin:declare:exchange');
         $process->run();
 
-        $this->assertFalse($process->isSuccessful());
+        self::assertFalse($process->isSuccessful());
         // TODO assert exchange still doesn't exist
     }
 
