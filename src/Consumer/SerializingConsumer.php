@@ -17,7 +17,7 @@ class SerializingConsumer implements QueueConsumer
      * SerializingConsumer constructor.
      *
      * @param QueueConsumer $consumer
-     * @param Serializer    $serializer
+     * @param Serializer $serializer
      */
     public function __construct(QueueConsumer $consumer, Serializer $serializer)
     {
@@ -28,7 +28,7 @@ class SerializingConsumer implements QueueConsumer
     /**
      * Consumes a message.
      *
-     * @param mixed    $message
+     * @param mixed $message
      * @param string[] $headers
      *
      * @return string
