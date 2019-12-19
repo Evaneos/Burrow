@@ -8,9 +8,13 @@ use Burrow\Exception\ConsumerException;
 use Burrow\Exception\TimeoutException;
 use Burrow\Message;
 use Burrow\QueueHandler;
+use Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Exception\AMQPExceptionInterface;
+use PhpAmqpLib\Exception\AMQPIOException;
+use PhpAmqpLib\Exception\AMQPSocketException;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
@@ -34,6 +38,8 @@ class PhpAmqpLibDriver implements Driver
 
     /** @var bool */
     private $stop = false;
+    /** @var bool */
+    private $retryPublish = false;
 
     /**
      * PhpAmqpLibDriver constructor.
@@ -58,7 +64,7 @@ class PhpAmqpLibDriver implements Driver
         $durable = ($type === self::QUEUE_DURABLE);
         $exclusive = ($type === self::QUEUE_EXCLUSIVE);
 
-        list($name, , ) = $this->getChannel()->queue_declare($queueName, false, $durable, $exclusive, false);
+        list($name, ,) = $this->getChannel()->queue_declare($queueName, false, $durable, $exclusive, false);
 
         return $name;
     }
@@ -66,14 +72,14 @@ class PhpAmqpLibDriver implements Driver
     /**
      * Declare an exchange
      *
-     * @param  string $exchangeName
-     * @param  string $type
+     * @param string $exchangeName
+     * @param string $type
      *
      * @return string
      */
     public function declareExchange($exchangeName = '', $type = self::EXCHANGE_TYPE_FANOUT)
     {
-        list($name, , ) = $this->getChannel()->exchange_declare($exchangeName, $type, false, true, false);
+        list($name, ,) = $this->getChannel()->exchange_declare($exchangeName, $type, false, true, false);
 
         return $name;
     }
@@ -81,9 +87,9 @@ class PhpAmqpLibDriver implements Driver
     /**
      * Bind an existing queue to an exchange
      *
-     * @param  string $exchange
-     * @param  string $queueName
-     * @param  string $routingKey
+     * @param string $exchange
+     * @param string $queueName
+     * @param string $routingKey
      * @return void
      */
     public function bindQueue($exchange, $queueName, $routingKey = '')
@@ -94,9 +100,9 @@ class PhpAmqpLibDriver implements Driver
     /**
      * Create a persisting queue and bind it to an exchange
      *
-     * @param  string $exchange
-     * @param  string $queueName
-     * @param  string $routingKey
+     * @param string $exchange
+     * @param string $queueName
+     * @param string $routingKey
      * @return void
      */
     public function declareAndBindQueue($exchange, $queueName, $routingKey = '')
@@ -130,33 +136,38 @@ class PhpAmqpLibDriver implements Driver
     /**
      * Publish a message in the exchange
      *
-     * @param string  $exchangeName
+     * @param string $exchangeName
      * @param Message $message
      *
      * @return void
      */
     public function publish($exchangeName, Message $message)
     {
-        $this->getChannel()->basic_publish(
-            new AMQPMessage($message->getBody(), self::getMessageProperties($message)),
-            $exchangeName,
-            $message->getRoutingKey()
-        );
+        try {
+            $this->getChannel()->basic_publish(
+                new AMQPMessage($message->getBody(), self::getMessageProperties($message)),
+                $exchangeName,
+                $message->getRoutingKey()
+            );
+        } catch (Exception $exception) {
+            $this->checkIfWeShouldRetry($exception);
+            $this->retryPublish($exchangeName, $message);
+        }
     }
 
     /**
      * Consume the queue
      *
-     * @param string   $queueName
+     * @param string $queueName
      * @param callable $callback
-     * @param int      $timeout
-     * @param bool     $autoAck
+     * @param int $timeout
+     * @param bool $autoAck
      *
      * @return void
      * @throws AssertionFailedException
      * @throws \OutOfBoundsException
      * @throws \InvalidArgumentException
-     * @throws \Exception
+     * @throws Exception
      */
     public function consume($queueName, callable $callback, $timeout = 0, $autoAck = true)
     {
@@ -207,7 +218,7 @@ class PhpAmqpLibDriver implements Driver
      * Aknowledge an error during the consumption of the message
      *
      * @param Message $message
-     * @param bool   $requeue
+     * @param bool $requeue
      *
      * @return void
      */
@@ -244,7 +255,7 @@ class PhpAmqpLibDriver implements Driver
     /**
      * @param $timeout
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function wait($timeout)
     {
@@ -253,7 +264,7 @@ class PhpAmqpLibDriver implements Driver
                 $this->getChannel()->wait(null, false, $timeout);
             } catch (AMQPTimeoutException $e) {
                 throw TimeoutException::build($e, $timeout);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($e instanceof AMQPExceptionInterface) {
                     throw ConsumerException::build($e);
                 }
@@ -272,9 +283,9 @@ class PhpAmqpLibDriver implements Driver
     private static function getMessageProperties(Message $message)
     {
         $properties = [
-            self::DELIVERY_MODE       => 2,
-            self::CONTENT_TYPE        => 'text/plain',
-            self::APPLICATION_HEADERS => new AMQPTable($message->getHeaders())
+            self::DELIVERY_MODE => 2,
+            self::CONTENT_TYPE => 'text/plain',
+            self::APPLICATION_HEADERS => new AMQPTable($message->getHeaders()),
         ];
 
         if ($message->getCorrelationId() !== null) {
@@ -325,5 +336,26 @@ class PhpAmqpLibDriver implements Driver
     {
         return $message->has(self::REPLY_TO) ?
             $message->get(self::REPLY_TO) : '';
+    }
+
+    private function retryPublish($exchangeName, Message $message)
+    {
+        $this->retryPublish = true;
+        $this->connection->reconnect();
+        $this->channel = null;
+        $this->publish($exchangeName, $message);
+        $this->retryPublish = false;
+    }
+
+    private function checkIfWeShouldRetry(Exception $exception)
+    {
+        if (!($exception instanceof AMQPConnectionClosedException
+                || $exception instanceof AMQPTimeoutException
+                || $exception instanceof AMQPIOException
+                || $exception instanceof AMQPSocketException)
+            || ($this->retryPublish !== false)
+        ) {
+            throw $exception;
+        }
     }
 }
