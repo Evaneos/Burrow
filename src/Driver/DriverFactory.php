@@ -2,9 +2,11 @@
 
 namespace Burrow\Driver;
 
+use Burrow\Connection\PhpAmqpLib\AMQPLazySSLConnection;
 use Burrow\Driver;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class DriverFactory
 {
@@ -87,18 +89,29 @@ class DriverFactory
     /**
      * @param string[] $connection
      *
-     * @return AMQPLazyConnection
+     * @return AMQPStreamConnection
      *
      * @codeCoverageIgnore
      */
     protected static function getPhpAmqpLibConnection(array $connection)
     {
-        return new AMQPLazyConnection(
-            $connection['host'],
-            $connection['port'],
-            $connection['user'],
-            $connection['pwd']
-        );
+        if (isset($connection['ssl']) && $connection['ssl']) {
+            return new AMQPLazySSLConnection(
+                $connection['host'],
+                $connection['port'],
+                $connection['user'],
+                $connection['pwd'],
+                '/',
+                isset($connection['ssl_options']) ? $connection['ssl_options'] : []
+            );
+        } else {
+            return new AMQPLazyConnection(
+                $connection['host'],
+                $connection['port'],
+                $connection['user'],
+                $connection['pwd']
+            );
+        }
     }
 
     /**
