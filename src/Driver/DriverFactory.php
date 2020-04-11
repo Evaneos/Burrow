@@ -16,12 +16,18 @@ class DriverFactory
      * It accepts a PECL connection, a PhpAmqpLib connection or an array following
      * the following schema :
      * [
-     *     'host' => '<hostValue>',
-     *     'port' => '<portValue>',
-     *     'user' => '<userValue>',
-     *     'pwd'  => '<pwdValue>'
+     *     'host'        => '<hostValue>',
+     *     'port'        => '<portValue>',
+     *     'user'        => '<userValue>',
+     *     'pwd'         => '<pwdValue>',
+     *     'ssl'         => true,                   // Optional: default to false
+     *     'ssl_options' => [                       // Optional: default to [], see https://www.php.net/manual/context.ssl.php
+     *         'capath'      => '/etc/ssl/certs',
+     *         'verify_peer' => true,
+     *     ],
      * ]
      *
+     * SSL options is limited to PhpAmqpLib.
      * If you provide an array, the PECL extension has precedence over the PhpAmqpLib.
      *
      * @param $connection
