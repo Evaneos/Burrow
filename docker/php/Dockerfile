@@ -10,7 +10,7 @@ RUN docker-php-ext-install \
 RUN printf "\n%s\n%s" "@edge http://dl-cdn.alpinelinux.org/alpine/edge/main" "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk --update upgrade \
 RUN apk add rabbitmq-c@edge rabbitmq-c-dev@edge \
-        && pecl install amqp
+        && pecl install amqp-1.9.4
 
 
 # Xdebug
