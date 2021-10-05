@@ -143,7 +143,8 @@ class Message
 
             if (!is_string($value) &&
                 !is_numeric($value) &&
-                !is_bool($value)
+                !is_bool($value) &&
+                !is_array($value)
             ) {
                 throw new \InvalidArgumentException('Value must be a string, a number or a boolean.');
             }

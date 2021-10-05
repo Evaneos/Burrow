@@ -37,7 +37,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
         $this->body = $faker->realText();
         $this->routingKey = $faker->word;
-        $this->headers = [ $faker->word => $faker->randomNumber() ];
+        $this->headers = [ $faker->word => $faker->randomNumber(), $faker->word => [$faker->word] ];
         $this->correlationId = $faker->uuid;
         $this->replyTo = $faker->uuid;
         $this->queue = $faker->word;
@@ -114,7 +114,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         new Message(
             $this->body,
             $this->routingKey,
-            [ 'a' => [] ]
+            [ 'a' => new \stdClass() ]
         );
     }
 
